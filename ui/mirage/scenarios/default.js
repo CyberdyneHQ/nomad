@@ -22,7 +22,7 @@ const allScenarios = {
 
 const scenario = getScenarioQueryParameter() || getConfigValue('mirageScenario', 'emptyCluster');
 
-export default function(server) {
+export default function (server) {
   const activeScenario = allScenarios[scenario];
   if (!activeScenario) {
     throw new Error(
@@ -51,7 +51,7 @@ function smallCluster(server) {
 
   const csiAllocations = server.createList('allocation', 5);
   const volumes = server.schema.csiVolumes.all().models;
-  csiAllocations.forEach(alloc => {
+  csiAllocations.forEach((alloc) => {
     const volume = pickOne(volumes);
     volume.writeAllocs.add(alloc);
     volume.readAllocs.add(alloc);
@@ -147,7 +147,7 @@ function createNamespaces(server) {
 }
 
 function createRegions(server) {
-  ['americas', 'europe', 'asia', 'some-long-name-just-to-test'].forEach(id => {
+  ['americas', 'europe', 'asia', 'some-long-name-just-to-test'].forEach((id) => {
     server.create('region', { id });
   });
 }
@@ -155,7 +155,7 @@ function createRegions(server) {
 /* eslint-disable */
 function logTokens(server) {
   console.log('TOKENS:');
-  server.db.tokens.forEach(token => {
+  server.db.tokens.forEach((token) => {
     console.log(`
 Name: ${token.name}
 Secret: ${token.secretId}

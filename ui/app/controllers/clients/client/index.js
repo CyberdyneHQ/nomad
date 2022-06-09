@@ -68,9 +68,7 @@ export default class ClientController extends Controller.extend(Sortable, Search
 
   @computed('model.events.@each.time')
   get sortedEvents() {
-    return this.get('model.events')
-      .sortBy('time')
-      .reverse();
+    return this.get('model.events').sortBy('time').reverse();
   }
 
   @computed('model.drivers.@each.name')
@@ -83,7 +81,7 @@ export default class ClientController extends Controller.extend(Sortable, Search
     return this.model.hostVolumes.sortBy('name');
   }
 
-  @(task(function*(value) {
+  @(task(function* (value) {
     try {
       yield value ? this.model.setEligible() : this.model.setIneligible();
     } catch (err) {
@@ -93,7 +91,7 @@ export default class ClientController extends Controller.extend(Sortable, Search
   }).drop())
   setEligibility;
 
-  @(task(function*() {
+  @(task(function* () {
     try {
       this.set('flagAsDraining', false);
       yield this.model.cancelDrain();
@@ -106,7 +104,7 @@ export default class ClientController extends Controller.extend(Sortable, Search
   }).drop())
   stopDrain;
 
-  @(task(function*() {
+  @(task(function* () {
     try {
       yield this.model.forceDrain({
         IgnoreSystemJobs: this.model.drainStrategy.ignoreSystemJobs,
