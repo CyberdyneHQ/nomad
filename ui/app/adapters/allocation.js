@@ -45,7 +45,7 @@ async function handleFSResponse(response) {
 }
 
 function adapterAction(path, verb = 'POST') {
-  return function(allocation) {
+  return function (allocation) {
     const url = addToPath(this.urlForFindRecord(allocation.id, 'allocation'), path);
     return this.ajax(url, verb);
   };

@@ -33,14 +33,14 @@ export default class DrainPopover extends Component {
       'forceDrain',
       'drainSystemJobs',
       'selectedDurationQuickOption',
-    ].forEach(k => {
+    ].forEach((k) => {
       if (k in this.drainOptions) {
         this[k] = this.drainOptions[k];
       }
     });
   }
 
-  @overridable(function() {
+  @overridable(function () {
     return this.durationQuickOptions[0];
   })
   selectedDurationQuickOption;
@@ -72,7 +72,7 @@ export default class DrainPopover extends Component {
     return this.selectedDurationQuickOption.value;
   }
 
-  @task(function*(close) {
+  @task(function* (close) {
     if (!this.client) return;
     const isUpdating = this.client.isDraining;
 

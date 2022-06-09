@@ -15,11 +15,11 @@ export default Factory.extend({
 
   JobID: '',
 
-  name: id => `task-${faker.hacker.noun().dasherize()}-${id}`,
+  name: (id) => `task-${faker.hacker.noun().dasherize()}-${id}`,
   driver: () => faker.helpers.randomize(DRIVERS),
 
   originalResources: generateResources,
-  resources: function() {
+  resources: function () {
     // Generate resources the usual way, but transform to the old
     // shape because that's what the job spec uses.
     const resources = this.originalResources;
@@ -31,7 +31,7 @@ export default Factory.extend({
     };
   },
 
-  Lifecycle: i => {
+  Lifecycle: (i) => {
     const cycle = i % 6;
 
     if (cycle === 0) {

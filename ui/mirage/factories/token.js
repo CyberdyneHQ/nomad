@@ -9,7 +9,7 @@ export default Factory.extend({
   secretId: () => faker.random.uuid(),
   name: () => faker.name.findName(),
   global: () => faker.random.boolean(),
-  type: i => (i === 0 ? 'management' : 'client'),
+  type: (i) => (i === 0 ? 'management' : 'client'),
 
   oneTimeSecret: () => faker.random.uuid(),
 
@@ -19,7 +19,7 @@ export default Factory.extend({
       .map(() => faker.hacker.verb())
       .uniq();
 
-    policyIds.forEach(policy => {
+    policyIds.forEach((policy) => {
       const dbPolicy = server.db.policies.find(policy);
       if (!dbPolicy) {
         server.create('policy', { id: policy });

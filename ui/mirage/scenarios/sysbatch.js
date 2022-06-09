@@ -29,7 +29,7 @@ function sysbatchScenario(server, clientCount) {
 
   server.create('job', 'pack');
 
-  ['system', 'sysbatch'].forEach(type => {
+  ['system', 'sysbatch'].forEach((type) => {
     // Job with 1 task group.
     const job1 = server.create('job', {
       status: 'running',
@@ -38,7 +38,7 @@ function sysbatchScenario(server, clientCount) {
       resourceSpec: ['M: 256, C: 500'],
       createAllocations: false,
     });
-    clients.forEach(c => {
+    clients.forEach((c) => {
       server.create('allocation', { jobId: job1.id, nodeId: c.id });
     });
 
@@ -50,7 +50,7 @@ function sysbatchScenario(server, clientCount) {
       resourceSpec: ['M: 256, C: 500', 'M: 256, C: 500'],
       createAllocations: false,
     });
-    clients.forEach(c => {
+    clients.forEach((c) => {
       server.create('allocation', { jobId: job2.id, nodeId: c.id });
       server.create('allocation', { jobId: job2.id, nodeId: c.id });
     });
@@ -63,7 +63,7 @@ function sysbatchScenario(server, clientCount) {
       resourceSpec: ['M: 256, C: 500', 'M: 256, C: 500', 'M: 256, C: 500'],
       createAllocations: false,
     });
-    clients.forEach(c => {
+    clients.forEach((c) => {
       server.create('allocation', { jobId: job3.id, nodeId: c.id });
       server.create('allocation', { jobId: job3.id, nodeId: c.id });
       server.create('allocation', { jobId: job3.id, nodeId: c.id });

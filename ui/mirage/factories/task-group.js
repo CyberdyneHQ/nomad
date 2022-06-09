@@ -6,7 +6,7 @@ import { generateResources } from '../common';
 const DISK_RESERVATIONS = [200, 500, 1000, 2000, 5000, 10000, 100000];
 
 export default Factory.extend({
-  name: id => `${faker.hacker.noun().dasherize()}-g-${id}`,
+  name: (id) => `${faker.hacker.noun().dasherize()}-g-${id}`,
   count: () => faker.random.number({ min: 1, max: 2 }),
 
   ephemeralDisk: () => ({
@@ -88,7 +88,7 @@ export default Factory.extend({
         return server.create('task', {
           taskGroup: group,
           ...maybeResources,
-          volumeMounts: mounts.map(mount => ({
+          volumeMounts: mounts.map((mount) => ({
             Volume: mount,
             Destination: `/${faker.internet.userName()}/${faker.internet.domainWord()}/${faker.internet.color()}`,
             PropagationMode: '',
@@ -162,11 +162,11 @@ function parseResourceSpec(spec) {
     I: 'IOPS',
   };
 
-  const terms = spec.split(',').map(t => {
+  const terms = spec.split(',').map((t) => {
     const [k, v] = t
       .trim()
       .split(':')
-      .map(kv => kv.trim());
+      .map((kv) => kv.trim());
     return [k, +v];
   });
 

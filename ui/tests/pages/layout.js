@@ -68,7 +68,7 @@ export default create({
   }),
 
   breadcrumbFor(id) {
-    return this.breadcrumbs.toArray().find(crumb => crumb.id === id);
+    return this.breadcrumbs.toArray().find((crumb) => crumb.id === id);
   },
 
   error: {
