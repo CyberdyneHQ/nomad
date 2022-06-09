@@ -7,10 +7,10 @@ import { Terminal } from 'xterm';
 import { HEARTBEAT_INTERVAL } from 'nomad-ui/utils/classes/exec-socket-xterm-adapter';
 import sinon from 'sinon';
 
-module('Integration | Utility | exec-socket-xterm-adapter', function(hooks) {
+module('Integration | Utility | exec-socket-xterm-adapter', function (hooks) {
   setupRenderingTest(hooks);
 
-  test('initiating socket sends authentication handshake', async function(assert) {
+  test('initiating socket sends authentication handshake', async function (assert) {
     let done = assert.async();
 
     let terminal = new Terminal();
@@ -41,7 +41,7 @@ module('Integration | Utility | exec-socket-xterm-adapter', function(hooks) {
     await settled();
   });
 
-  test('initiating socket sends authentication handshake even if unauthenticated', async function(assert) {
+  test('initiating socket sends authentication handshake even if unauthenticated', async function (assert) {
     let done = assert.async();
 
     let terminal = new Terminal();
@@ -72,7 +72,7 @@ module('Integration | Utility | exec-socket-xterm-adapter', function(hooks) {
     await settled();
   });
 
-  test('a heartbeat is sent periodically', async function(assert) {
+  test('a heartbeat is sent periodically', async function (assert) {
     let done = assert.async();
 
     const clock = sinon.useFakeTimers({
@@ -106,7 +106,7 @@ module('Integration | Utility | exec-socket-xterm-adapter', function(hooks) {
     clock.tick(HEARTBEAT_INTERVAL);
   });
 
-  test('resizing the window passes a resize message through the socket', async function(assert) {
+  test('resizing the window passes a resize message through the socket', async function (assert) {
     let done = assert.async();
 
     let terminal = new Terminal();
@@ -136,7 +136,7 @@ module('Integration | Utility | exec-socket-xterm-adapter', function(hooks) {
     await settled();
   });
 
-  test('stdout frames without data are ignored', async function(assert) {
+  test('stdout frames without data are ignored', async function (assert) {
     assert.expect(0);
 
     let terminal = new Terminal();
@@ -162,7 +162,7 @@ module('Integration | Utility | exec-socket-xterm-adapter', function(hooks) {
     mockSocket.onclose();
   });
 
-  test('stderr frames are ignored', async function(assert) {
+  test('stderr frames are ignored', async function (assert) {
     let terminal = new Terminal();
     this.set('terminal', terminal);
 
@@ -188,13 +188,7 @@ module('Integration | Utility | exec-socket-xterm-adapter', function(hooks) {
 
     await settled();
 
-    assert.equal(
-      terminal.buffer.active
-        .getLine(0)
-        .translateToString()
-        .trim(),
-      'sh-3.2 🥳$'
-    );
+    assert.equal(terminal.buffer.active.getLine(0).translateToString().trim(), 'sh-3.2 🥳$');
 
     mockSocket.onclose();
   });
