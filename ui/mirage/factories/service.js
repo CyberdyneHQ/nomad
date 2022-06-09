@@ -5,7 +5,7 @@ import { provide } from '../utils';
 const ON_UPDATE = ['default', 'ignore', 'ignore_warnings'];
 
 export default Factory.extend({
-  name: id => `${faker.hacker.noun().dasherize()}-${id}-service`,
+  name: (id) => `${faker.hacker.noun().dasherize()}-${id}-service`,
   portLabel: () => faker.hacker.noun().dasherize(),
   onUpdate: faker.helpers.randomize(ON_UPDATE),
   tags: () => {

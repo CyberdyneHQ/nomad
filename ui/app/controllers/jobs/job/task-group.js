@@ -9,10 +9,10 @@ import classic from 'ember-classic-decorator';
 
 @classic
 export default class TaskGroupController extends Controller.extend(
-    Sortable,
-    Searchable,
-    WithNamespaceResetting
-  ) {
+  Sortable,
+  Searchable,
+  WithNamespaceResetting
+) {
   @service userSettings;
   @service can;
 
@@ -51,7 +51,7 @@ export default class TaskGroupController extends Controller.extend(
   @alias('listSorted') listToSearch;
   @alias('listSearched') sortedAllocations;
 
-  @computed('model.scaleState.events.@each.time', function() {
+  @computed('model.scaleState.events.@each.time', function () {
     const events = get(this, 'model.scaleState.events');
     if (events) {
       return events.sortBy('time').reverse();
@@ -60,7 +60,7 @@ export default class TaskGroupController extends Controller.extend(
   })
   sortedScaleEvents;
 
-  @computed('sortedScaleEvents.@each.hasCount', function() {
+  @computed('sortedScaleEvents.@each.hasCount', function () {
     const countEventsCount = this.sortedScaleEvents.filterBy('hasCount').length;
     return countEventsCount > 1 && countEventsCount >= this.sortedScaleEvents.length / 2;
   })

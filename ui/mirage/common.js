@@ -39,8 +39,11 @@ export function generateResources(options = {}) {
   };
 
   if (faker.random.boolean()) {
-    const higherMemoryReservations = MEMORY_RESERVATIONS.filter(mb => mb > resources.Memory.MemoryMB);
-    resources.Memory.MemoryMaxMB = faker.helpers.randomize(higherMemoryReservations) || resources.Memory.MemoryMB + 1;
+    const higherMemoryReservations = MEMORY_RESERVATIONS.filter(
+      (mb) => mb > resources.Memory.MemoryMB
+    );
+    resources.Memory.MemoryMaxMB =
+      faker.helpers.randomize(higherMemoryReservations) || resources.Memory.MemoryMB + 1;
   } else {
     resources.Memory.MemoryMaxMB = 0;
   }

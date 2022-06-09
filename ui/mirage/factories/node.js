@@ -11,8 +11,8 @@ const NODE_VERSIONS = ['1.1.0-beta', '1.0.2-alpha+ent', ...provide(5, faker.syst
 const REF_DATE = new Date();
 
 export default Factory.extend({
-  id: i => (i / 100 >= 1 ? `${UUIDS[i]}-${i}` : UUIDS[i]),
-  name: i => `nomad@${HOSTS[i % HOSTS.length]}`,
+  id: (i) => (i / 100 >= 1 ? `${UUIDS[i]}-${i}` : UUIDS[i]),
+  name: (i) => `nomad@${HOSTS[i % HOSTS.length]}`,
 
   datacenter: () => faker.helpers.randomize(DATACENTERS),
   nodeClass: () => faker.helpers.randomize(NODE_CLASSES),
@@ -21,7 +21,7 @@ export default Factory.extend({
   tlsEnabled: faker.random.boolean,
   schedulingEligibility: () => (faker.random.boolean() ? 'eligible' : 'ineligible'),
 
-  createIndex: i => i,
+  createIndex: (i) => i,
   modifyIndex: () => faker.random.number({ min: 10, max: 2000 }),
   version: () => faker.helpers.randomize(NODE_VERSIONS),
 
@@ -30,8 +30,8 @@ export default Factory.extend({
   },
 
   forceIPv4: trait({
-    name: i => {
-      const ipv4Hosts = HOSTS.filter(h => !h.startsWith('['));
+    name: (i) => {
+      const ipv4Hosts = HOSTS.filter((h) => !h.startsWith('['));
       return `nomad@${ipv4Hosts[i % ipv4Hosts.length]}`;
     },
   }),
@@ -145,7 +145,7 @@ export default Factory.extend({
 });
 
 function makeDrivers() {
-  const generate = name => {
+  const generate = (name) => {
     const detected = faker.random.number(10) >= 3;
     const healthy = detected && faker.random.number(10) >= 3;
     const attributes = {

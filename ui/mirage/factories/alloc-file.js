@@ -5,11 +5,7 @@ import { pickOne } from '../utils';
 const REF_TIME = new Date();
 const TROUBLESOME_CHARACTERS = '🏆 💃 🤩 🙌🏿 🖨 ? ; %'.split(' ');
 const makeWord = () => (faker.random.number(10000000) + 50000).toString(36);
-const makeSentence = (count = 10) =>
-  new Array(count)
-    .fill(null)
-    .map(makeWord)
-    .join(' ');
+const makeSentence = (count = 10) => new Array(count).fill(null).map(makeWord).join(' ');
 
 const fileTypeMapping = {
   svg: 'image/svg',
@@ -52,7 +48,7 @@ const fileBodyMapping = {
 };
 
 export default Factory.extend({
-  id: i => i,
+  id: (i) => i,
 
   isDir: faker.random.boolean,
 

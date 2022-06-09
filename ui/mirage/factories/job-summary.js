@@ -9,7 +9,7 @@ export default Factory.extend({
   namespace: null,
 
   withSummary: trait({
-    Summary: function() {
+    Summary: function () {
       return this.groupNames.reduce((summary, group) => {
         summary[group] = {
           Queued: faker.random.number(10),

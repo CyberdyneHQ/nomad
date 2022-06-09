@@ -64,7 +64,7 @@ export default class NodePrimaryMetric extends Component {
     return [];
   }
 
-  @task(function*() {
+  @task(function* () {
     do {
       this.tracker.poll.perform();
       yield timeout(100);
