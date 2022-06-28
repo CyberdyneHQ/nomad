@@ -138,10 +138,7 @@ export default create({
 
     setDeadline(label) {
       this.deadlineOptions.open();
-      this.deadlineOptions.options
-        .toArray()
-        .findBy('label', label)
-        .choose();
+      this.deadlineOptions.options.toArray().findBy('label', label).choose();
     },
   },
 

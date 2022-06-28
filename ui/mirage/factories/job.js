@@ -17,9 +17,9 @@ export default Factory.extend({
       return `${this.parentId}/${dispatchId}`;
     }
 
-    return `${faker.helpers.randomize(
-      JOB_PREFIXES
-    )}-${faker.hacker.noun().dasherize()}-${i}`.toLowerCase();
+    return `${faker.helpers.randomize(JOB_PREFIXES)}-${faker.hacker
+      .noun()
+      .dasherize()}-${i}`.toLowerCase();
   },
 
   name() {
@@ -148,7 +148,7 @@ export default Factory.extend({
     }),
   }),
 
-  createIndex: i => i,
+  createIndex: (i) => i,
   modifyIndex: () => faker.random.number({ min: 10, max: 2000 }),
 
   // Directive used to control sub-resources

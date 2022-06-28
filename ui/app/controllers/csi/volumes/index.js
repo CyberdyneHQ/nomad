@@ -11,15 +11,15 @@ import classic from 'ember-classic-decorator';
 
 @classic
 export default class IndexController extends Controller.extend(
-    SortableFactory([
-      'id',
-      'schedulable',
-      'controllersHealthyProportion',
-      'nodesHealthyProportion',
-      'provider',
-    ]),
-    Searchable
-  ) {
+  SortableFactory([
+    'id',
+    'schedulable',
+    'controllersHealthyProportion',
+    'nodesHealthyProportion',
+    'provider',
+  ]),
+  Searchable
+) {
   @service system;
   @service userSettings;
   @controller('csi/volumes') volumesController;
@@ -65,7 +65,7 @@ export default class IndexController extends Controller.extend(
 
   @computed('qpNamespace', 'model.namespaces.[]', 'system.cachedNamespace')
   get optionsNamespaces() {
-    const availableNamespaces = this.model.namespaces.map(namespace => ({
+    const availableNamespaces = this.model.namespaces.map((namespace) => ({
       key: namespace.name,
       label: namespace.name,
     }));

@@ -40,7 +40,7 @@ export default class GlobalSearchControl extends Component {
     document.removeEventListener('keydown', this._keyDownHandler);
   }
 
-  @task(function*(string) {
+  @task(function* (string) {
     const searchResponse = yield this.token.authorizedRequest('/v1/search/fuzzy', {
       method: 'POST',
       body: JSON.stringify({

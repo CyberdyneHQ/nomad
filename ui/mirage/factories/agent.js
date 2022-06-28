@@ -8,7 +8,7 @@ const AGENT_STATUSES = ['alive', 'leaving', 'left', 'failed'];
 const AGENT_BUILDS = ['1.1.0-beta', '1.0.2-alpha+ent', ...provide(5, faker.system.semver)];
 
 export default Factory.extend({
-  id: i => (i / 100 >= 1 ? `${UUIDS[i]}-${i}` : UUIDS[i]),
+  id: (i) => (i / 100 >= 1 ? `${UUIDS[i]}-${i}` : UUIDS[i]),
 
   name: () => generateName(),
 
