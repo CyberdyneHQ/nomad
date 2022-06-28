@@ -8,10 +8,10 @@ import classic from 'ember-classic-decorator';
 
 @classic
 export default class AllocationsController extends Controller.extend(
-    Sortable,
-    Searchable,
-    WithNamespaceResetting
-  ) {
+  Sortable,
+  Searchable,
+  WithNamespaceResetting
+) {
   queryParams = [
     {
       currentPage: 'page',

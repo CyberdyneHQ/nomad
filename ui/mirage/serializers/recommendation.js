@@ -7,7 +7,9 @@ export default ApplicationSerializer.extend({
   serialize() {
     var json = ApplicationSerializer.prototype.serialize.apply(this, arguments);
     if (json instanceof Array) {
-      json.forEach(recommendationJson => serializeRecommendation(recommendationJson, this.schema));
+      json.forEach((recommendationJson) =>
+        serializeRecommendation(recommendationJson, this.schema)
+      );
     } else {
       serializeRecommendation(json, this.schema);
     }

@@ -30,7 +30,7 @@ export function topoSmall(server) {
     ['M: 512, C: 250', 'M: 600, C: 200'],
   ];
 
-  jobResources.forEach(spec => {
+  jobResources.forEach((spec) => {
     server.create('job', {
       status: 'running',
       datacenters: ['dc1'],
@@ -93,7 +93,7 @@ export function topoMedium(server) {
     ['M: 512, C: 250', 'M: 600, C: 200'],
   ];
 
-  jobResources.forEach(spec => {
+  jobResources.forEach((spec) => {
     server.create('job', {
       status: 'running',
       datacenters: ['dc1'],
