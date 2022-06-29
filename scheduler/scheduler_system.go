@@ -26,6 +26,7 @@ const (
 // whereas 'sysbatch' considers the task complete on success.
 type SystemScheduler struct {
 	logger   log.Logger
+	eventsCh chan<- interface{}
 	state    State
 	planner  Planner
 	sysbatch bool
@@ -50,18 +51,20 @@ type SystemScheduler struct {
 
 // NewSystemScheduler is a factory function to instantiate a new system
 // scheduler.
-func NewSystemScheduler(logger log.Logger, state State, planner Planner) Scheduler {
+func NewSystemScheduler(logger log.Logger, eventsCh chan<- interface{}, state State, planner Planner) Scheduler {
 	return &SystemScheduler{
 		logger:   logger.Named("system_sched"),
+		eventsCh: eventsCh,
 		state:    state,
 		planner:  planner,
 		sysbatch: false,
 	}
 }
 
-func NewSysBatchScheduler(logger log.Logger, state State, planner Planner) Scheduler {
+func NewSysBatchScheduler(logger log.Logger, eventsCh chan<- interface{}, state State, planner Planner) Scheduler {
 	return &SystemScheduler{
 		logger:   logger.Named("sysbatch_sched"),
+		eventsCh: eventsCh,
 		state:    state,
 		planner:  planner,
 		sysbatch: true,
@@ -69,7 +72,13 @@ func NewSysBatchScheduler(logger log.Logger, state State, planner Planner) Sched
 }
 
 // Process is used to handle a single evaluation.
-func (s *SystemScheduler) Process(eval *structs.Evaluation) error {
+func (s *SystemScheduler) Process(eval *structs.Evaluation) (err error) {
+
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("processing eval %q panicked scheduler - please report this as a bug! - %v", eval.ID, r)
+		}
+	}()
 
 	// Store the evaluation
 	s.eval = eval
@@ -136,7 +145,7 @@ func (s *SystemScheduler) process() (bool, error) {
 	s.failedTGAllocs = nil
 
 	// Create an evaluation context
-	s.ctx = NewEvalContext(s.state, s.plan, s.logger)
+	s.ctx = NewEvalContext(s.eventsCh, s.state, s.plan, s.logger)
 
 	// Construct the placement stack
 	s.stack = NewSystemStack(s.sysbatch, s.ctx)
@@ -220,7 +229,9 @@ func (s *SystemScheduler) computeJobAllocs() error {
 	live, term := structs.SplitTerminalAllocs(allocs)
 
 	// Diff the required and existing allocations
-	diff := diffSystemAllocs(s.job, s.nodes, s.notReadyNodes, tainted, live, term)
+	diff := diffSystemAllocs(s.job, s.nodes, s.notReadyNodes, tainted, live, term,
+		s.planner.ServersMeetMinimumVersion(minVersionMaxClientDisconnect, true))
+
 	s.logger.Debug("reconciled current state with desired state",
 		"place", len(diff.place), "update", len(diff.update),
 		"migrate", len(diff.migrate), "stop", len(diff.stop),
@@ -240,6 +251,10 @@ func (s *SystemScheduler) computeJobAllocs() error {
 	// status lost.
 	for _, e := range diff.lost {
 		s.plan.AppendStoppedAlloc(e.Alloc, allocLost, structs.AllocClientStatusLost, "")
+	}
+
+	for _, e := range diff.disconnecting {
+		s.plan.AppendUnknownAlloc(e.Alloc)
 	}
 
 	// Attempt to do the upgrades in place
@@ -287,8 +302,15 @@ func mergeNodeFiltered(acc, curr *structs.AllocMetric) *structs.AllocMetric {
 
 	acc.NodesEvaluated += curr.NodesEvaluated
 	acc.NodesFiltered += curr.NodesFiltered
+
+	if acc.ClassFiltered == nil {
+		acc.ClassFiltered = make(map[string]int)
+	}
 	for k, v := range curr.ClassFiltered {
 		acc.ClassFiltered[k] += v
+	}
+	if acc.ConstraintFiltered == nil {
+		acc.ConstraintFiltered = make(map[string]int)
 	}
 	for k, v := range curr.ConstraintFiltered {
 		acc.ConstraintFiltered[k] += v
@@ -492,6 +514,7 @@ func (s *SystemScheduler) canHandle(trigger string) bool {
 	case structs.EvalTriggerAllocStop:
 	case structs.EvalTriggerQueuedAllocs:
 	case structs.EvalTriggerScaling:
+	case structs.EvalTriggerReconnect:
 	default:
 		switch s.sysbatch {
 		case true:

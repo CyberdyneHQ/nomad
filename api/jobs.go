@@ -20,6 +20,10 @@ const (
 	// JobTypeSystem indicates a system process that should run on all clients
 	JobTypeSystem = "system"
 
+	// JobTypeSysbatch indicates a short-lived system process that should run
+	// on all clients.
+	JobTypeSysbatch = "sysbatch"
+
 	// PeriodicSpecCron is used for a cron spec.
 	PeriodicSpecCron = "cron"
 
@@ -65,12 +69,21 @@ func (c *Client) Jobs() *Jobs {
 
 // ParseHCL is used to convert the HCL repesentation of a Job to JSON server side.
 // To parse the HCL client side see package github.com/hashicorp/nomad/jobspec
+// Use ParseHCLOpts if you need to customize JobsParseRequest.
 func (j *Jobs) ParseHCL(jobHCL string, canonicalize bool) (*Job, error) {
-	var job Job
 	req := &JobsParseRequest{
 		JobHCL:       jobHCL,
 		Canonicalize: canonicalize,
 	}
+	return j.ParseHCLOpts(req)
+}
+
+// ParseHCLOpts is used to convert the HCL representation of a Job to JSON
+// server side. To parse the HCL client side see package
+// github.com/hashicorp/nomad/jobspec.
+// ParseHCL is an alternative convenience API for HCLv2 users.
+func (j *Jobs) ParseHCLOpts(req *JobsParseRequest) (*Job, error) {
+	var job Job
 	_, err := j.client.write("/v1/jobs/parse", req, &job, nil)
 	return &job, err
 }
@@ -91,6 +104,7 @@ type RegisterOptions struct {
 	ModifyIndex    uint64
 	PolicyOverride bool
 	PreserveCounts bool
+	EvalPriority   int
 }
 
 // Register is used to register a new job. It returns the ID
@@ -105,8 +119,8 @@ func (j *Jobs) EnforceRegister(job *Job, modifyIndex uint64, q *WriteOptions) (*
 	return j.RegisterOpts(job, &opts, q)
 }
 
-// Register is used to register a new job. It returns the ID
-// of the evaluation, along with any errors encountered.
+// RegisterOpts is used to register a new job with the passed RegisterOpts. It
+// returns the ID of the evaluation, along with any errors encountered.
 func (j *Jobs) RegisterOpts(job *Job, opts *RegisterOptions, q *WriteOptions) (*JobRegisterResponse, *WriteMeta, error) {
 	// Format the request
 	req := &JobRegisterRequest{
@@ -119,6 +133,7 @@ func (j *Jobs) RegisterOpts(job *Job, opts *RegisterOptions, q *WriteOptions) (*
 		}
 		req.PolicyOverride = opts.PolicyOverride
 		req.PreserveCounts = opts.PreserveCounts
+		req.EvalPriority = opts.EvalPriority
 	}
 
 	var resp JobRegisterResponse
@@ -290,14 +305,36 @@ type DeregisterOptions struct {
 	// If Global is set to true, all regions of a multiregion job will be
 	// stopped.
 	Global bool
+
+	// EvalPriority is an optional priority to use on any evaluation created as
+	// a result on this job deregistration. This value must be between 1-100
+	// inclusively, where a larger value corresponds to a higher priority. This
+	// is useful when an operator wishes to push through a job deregistration
+	// in busy clusters with a large evaluation backlog.
+	EvalPriority int
+
+	// NoShutdownDelay, if set to true, will override the group and
+	// task shutdown_delay configuration and ignore the delay for any
+	// allocations stopped as a result of this Deregister call.
+	NoShutdownDelay bool
 }
 
 // DeregisterOpts is used to remove an existing job. See DeregisterOptions
 // for parameters.
 func (j *Jobs) DeregisterOpts(jobID string, opts *DeregisterOptions, q *WriteOptions) (string, *WriteMeta, error) {
 	var resp JobDeregisterResponse
-	wm, err := j.client.delete(fmt.Sprintf("/v1/job/%v?purge=%t&global=%t",
-		url.PathEscape(jobID), opts.Purge, opts.Global), &resp, q)
+
+	// The base endpoint to add query params to.
+	endpoint := "/v1/job/" + url.PathEscape(jobID)
+
+	// Protect against nil opts. url.Values expects a string, and so using
+	// fmt.Sprintf is the best way to do this.
+	if opts != nil {
+		endpoint += fmt.Sprintf("?purge=%t&global=%t&eval_priority=%v&no_shutdown_delay=%t",
+			opts.Purge, opts.Global, opts.EvalPriority, opts.NoShutdownDelay)
+	}
+
+	wm, err := j.client.delete(endpoint, &resp, q)
 	if err != nil {
 		return "", nil, err
 	}
@@ -408,8 +445,8 @@ func (j *Jobs) Revert(jobID string, version uint64, enforcePriorVersion *uint64,
 		JobID:               jobID,
 		JobVersion:          version,
 		EnforcePriorVersion: enforcePriorVersion,
-		// ConsulToken:         consulToken, // TODO(shoenig) enable!
-		VaultToken: vaultToken,
+		ConsulToken:         consulToken,
+		VaultToken:          vaultToken,
 	}
 	wm, err := j.client.write("/v1/job/"+url.PathEscape(jobID)+"/revert", req, &resp, q)
 	if err != nil {
@@ -433,6 +470,14 @@ func (j *Jobs) Stable(jobID string, version uint64, stable bool,
 		return nil, nil, err
 	}
 	return &resp, wm, nil
+}
+
+// Services is used to return a list of service registrations associated to the
+// specified jobID.
+func (j *Jobs) Services(jobID string, q *QueryOptions) ([]*ServiceRegistration, *QueryMeta, error) {
+	var resp []*ServiceRegistration
+	qm, err := j.client.query("/v1/job/"+jobID+"/services", &resp, q)
+	return resp, qm, err
 }
 
 // periodicForceResponse is used to deserialize a force response
@@ -983,6 +1028,7 @@ type TaskGroupSummary struct {
 	Running  int
 	Starting int
 	Lost     int
+	Unknown  int
 }
 
 // JobListStub is used to return a subset of information about
@@ -1041,6 +1087,13 @@ func NewBatchJob(id, name, region string, pri int) *Job {
 // the relative job priority.
 func NewSystemJob(id, name, region string, pri int) *Job {
 	return newJob(id, name, region, JobTypeSystem, pri)
+}
+
+// NewSysbatchJob creates and returns a new sysbatch-style job for short-lived
+// processes designed to run on all clients, using the provided name and ID
+// along with the relative job priority.
+func NewSysbatchJob(id, name, region string, pri int) *Job {
+	return newJob(id, name, region, JobTypeSysbatch, pri)
 }
 
 // newJob is used to create a new Job struct.
@@ -1169,6 +1222,14 @@ type JobRegisterRequest struct {
 	JobModifyIndex uint64 `json:",omitempty"`
 	PolicyOverride bool   `json:",omitempty"`
 	PreserveCounts bool   `json:",omitempty"`
+
+	// EvalPriority is an optional priority to use on any evaluation created as
+	// a result on this job registration. This value must be between 1-100
+	// inclusively, where a larger value corresponds to a higher priority. This
+	// is useful when an operator wishes to push through a job registration in
+	// busy clusters with a large evaluation backlog. This avoids needing to
+	// change the job priority which also impacts preemption.
+	EvalPriority int `json:",omitempty"`
 
 	WriteRequest
 }

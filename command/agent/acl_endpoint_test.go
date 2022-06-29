@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/hashicorp/nomad/ci"
 	"github.com/hashicorp/nomad/nomad/mock"
 	"github.com/hashicorp/nomad/nomad/structs"
 	"github.com/stretchr/testify/assert"
@@ -12,7 +13,7 @@ import (
 )
 
 func TestHTTP_ACLPolicyList(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	httpACLTest(t, nil, func(s *TestAgent) {
 		p1 := mock.ACLPolicy()
 		p2 := mock.ACLPolicy()
@@ -44,13 +45,13 @@ func TestHTTP_ACLPolicyList(t *testing.T) {
 		}
 
 		// Check for the index
-		if respW.HeaderMap.Get("X-Nomad-Index") == "" {
+		if respW.Result().Header.Get("X-Nomad-Index") == "" {
 			t.Fatalf("missing index")
 		}
-		if respW.HeaderMap.Get("X-Nomad-KnownLeader") != "true" {
+		if respW.Result().Header.Get("X-Nomad-KnownLeader") != "true" {
 			t.Fatalf("missing known leader")
 		}
-		if respW.HeaderMap.Get("X-Nomad-LastContact") == "" {
+		if respW.Result().Header.Get("X-Nomad-LastContact") == "" {
 			t.Fatalf("missing last contact")
 		}
 
@@ -63,7 +64,7 @@ func TestHTTP_ACLPolicyList(t *testing.T) {
 }
 
 func TestHTTP_ACLPolicyQuery(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	httpACLTest(t, nil, func(s *TestAgent) {
 		p1 := mock.ACLPolicy()
 		args := structs.ACLPolicyUpsertRequest{
@@ -93,13 +94,13 @@ func TestHTTP_ACLPolicyQuery(t *testing.T) {
 		}
 
 		// Check for the index
-		if respW.HeaderMap.Get("X-Nomad-Index") == "" {
+		if respW.Result().Header.Get("X-Nomad-Index") == "" {
 			t.Fatalf("missing index")
 		}
-		if respW.HeaderMap.Get("X-Nomad-KnownLeader") != "true" {
+		if respW.Result().Header.Get("X-Nomad-KnownLeader") != "true" {
 			t.Fatalf("missing known leader")
 		}
-		if respW.HeaderMap.Get("X-Nomad-LastContact") == "" {
+		if respW.Result().Header.Get("X-Nomad-LastContact") == "" {
 			t.Fatalf("missing last contact")
 		}
 
@@ -112,7 +113,7 @@ func TestHTTP_ACLPolicyQuery(t *testing.T) {
 }
 
 func TestHTTP_ACLPolicyCreate(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	httpACLTest(t, nil, func(s *TestAgent) {
 		// Make the HTTP request
 		p1 := mock.ACLPolicy()
@@ -130,7 +131,7 @@ func TestHTTP_ACLPolicyCreate(t *testing.T) {
 		assert.Nil(t, obj)
 
 		// Check for the index
-		if respW.HeaderMap.Get("X-Nomad-Index") == "" {
+		if respW.Result().Header.Get("X-Nomad-Index") == "" {
 			t.Fatalf("missing index")
 		}
 
@@ -147,7 +148,7 @@ func TestHTTP_ACLPolicyCreate(t *testing.T) {
 }
 
 func TestHTTP_ACLPolicyDelete(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	httpACLTest(t, nil, func(s *TestAgent) {
 		p1 := mock.ACLPolicy()
 		args := structs.ACLPolicyUpsertRequest{
@@ -176,7 +177,7 @@ func TestHTTP_ACLPolicyDelete(t *testing.T) {
 		assert.Nil(t, obj)
 
 		// Check for the index
-		if respW.HeaderMap.Get("X-Nomad-Index") == "" {
+		if respW.Result().Header.Get("X-Nomad-Index") == "" {
 			t.Fatalf("missing index")
 		}
 
@@ -189,7 +190,7 @@ func TestHTTP_ACLPolicyDelete(t *testing.T) {
 }
 
 func TestHTTP_ACLTokenBootstrap(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	conf := func(c *Config) {
 		c.ACL.Enabled = true
 		c.ACL.PolicyTTL = 0 // Special flag to disable auto-bootstrap
@@ -209,7 +210,7 @@ func TestHTTP_ACLTokenBootstrap(t *testing.T) {
 		}
 
 		// Check for the index
-		if respW.HeaderMap.Get("X-Nomad-Index") == "" {
+		if respW.Result().Header.Get("X-Nomad-Index") == "" {
 			t.Fatalf("missing index")
 		}
 
@@ -220,8 +221,51 @@ func TestHTTP_ACLTokenBootstrap(t *testing.T) {
 	})
 }
 
+func TestHTTP_ACLTokenBootstrapOperator(t *testing.T) {
+	ci.Parallel(t)
+	conf := func(c *Config) {
+		c.ACL.Enabled = true
+		c.ACL.PolicyTTL = 0 // Special flag to disable auto-bootstrap
+	}
+	httpTest(t, conf, func(s *TestAgent) {
+		// Provide token
+		args := structs.ACLTokenBootstrapRequest{
+			BootstrapSecret: "2b778dd9-f5f1-6f29-b4b4-9a5fa948757a",
+		}
+
+		buf := encodeReq(args)
+
+		// Make the HTTP request
+		req, err := http.NewRequest("PUT", "/v1/acl/bootstrap", buf)
+		if err != nil {
+			t.Fatalf("err: %v", err)
+		}
+
+		// Since we're not actually writing this HTTP request, we have
+		// to manually set ContentLength
+		req.ContentLength = -1
+
+		respW := httptest.NewRecorder()
+		// Make the request
+		obj, err := s.Server.ACLTokenBootstrap(respW, req)
+		if err != nil {
+			t.Fatalf("err: %v", err)
+		}
+
+		// Check for the index
+		if respW.Result().Header.Get("X-Nomad-Index") == "" {
+			t.Fatalf("missing index")
+		}
+
+		// Check the output
+		n := obj.(*structs.ACLToken)
+		assert.NotNil(t, n)
+		assert.Equal(t, args.BootstrapSecret, n.SecretID)
+	})
+}
+
 func TestHTTP_ACLTokenList(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	httpACLTest(t, nil, func(s *TestAgent) {
 		p1 := mock.ACLToken()
 		p1.AccessorID = ""
@@ -256,13 +300,13 @@ func TestHTTP_ACLTokenList(t *testing.T) {
 		}
 
 		// Check for the index
-		if respW.HeaderMap.Get("X-Nomad-Index") == "" {
+		if respW.Result().Header.Get("X-Nomad-Index") == "" {
 			t.Fatalf("missing index")
 		}
-		if respW.HeaderMap.Get("X-Nomad-KnownLeader") != "true" {
+		if respW.Result().Header.Get("X-Nomad-KnownLeader") != "true" {
 			t.Fatalf("missing known leader")
 		}
-		if respW.HeaderMap.Get("X-Nomad-LastContact") == "" {
+		if respW.Result().Header.Get("X-Nomad-LastContact") == "" {
 			t.Fatalf("missing last contact")
 		}
 
@@ -275,7 +319,7 @@ func TestHTTP_ACLTokenList(t *testing.T) {
 }
 
 func TestHTTP_ACLTokenQuery(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	httpACLTest(t, nil, func(s *TestAgent) {
 		p1 := mock.ACLToken()
 		p1.AccessorID = ""
@@ -307,13 +351,13 @@ func TestHTTP_ACLTokenQuery(t *testing.T) {
 		}
 
 		// Check for the index
-		if respW.HeaderMap.Get("X-Nomad-Index") == "" {
+		if respW.Result().Header.Get("X-Nomad-Index") == "" {
 			t.Fatalf("missing index")
 		}
-		if respW.HeaderMap.Get("X-Nomad-KnownLeader") != "true" {
+		if respW.Result().Header.Get("X-Nomad-KnownLeader") != "true" {
 			t.Fatalf("missing known leader")
 		}
-		if respW.HeaderMap.Get("X-Nomad-LastContact") == "" {
+		if respW.Result().Header.Get("X-Nomad-LastContact") == "" {
 			t.Fatalf("missing last contact")
 		}
 
@@ -324,7 +368,7 @@ func TestHTTP_ACLTokenQuery(t *testing.T) {
 }
 
 func TestHTTP_ACLTokenSelf(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	httpACLTest(t, nil, func(s *TestAgent) {
 		p1 := mock.ACLToken()
 		p1.AccessorID = ""
@@ -356,13 +400,13 @@ func TestHTTP_ACLTokenSelf(t *testing.T) {
 		}
 
 		// Check for the index
-		if respW.HeaderMap.Get("X-Nomad-Index") == "" {
+		if respW.Result().Header.Get("X-Nomad-Index") == "" {
 			t.Fatalf("missing index")
 		}
-		if respW.HeaderMap.Get("X-Nomad-KnownLeader") != "true" {
+		if respW.Result().Header.Get("X-Nomad-KnownLeader") != "true" {
 			t.Fatalf("missing known leader")
 		}
-		if respW.HeaderMap.Get("X-Nomad-LastContact") == "" {
+		if respW.Result().Header.Get("X-Nomad-LastContact") == "" {
 			t.Fatalf("missing last contact")
 		}
 
@@ -373,7 +417,7 @@ func TestHTTP_ACLTokenSelf(t *testing.T) {
 }
 
 func TestHTTP_ACLTokenCreate(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	httpACLTest(t, nil, func(s *TestAgent) {
 		// Make the HTTP request
 		p1 := mock.ACLToken()
@@ -393,7 +437,7 @@ func TestHTTP_ACLTokenCreate(t *testing.T) {
 		outTK := obj.(*structs.ACLToken)
 
 		// Check for the index
-		if respW.HeaderMap.Get("X-Nomad-Index") == "" {
+		if respW.Result().Header.Get("X-Nomad-Index") == "" {
 			t.Fatalf("missing index")
 		}
 
@@ -407,7 +451,7 @@ func TestHTTP_ACLTokenCreate(t *testing.T) {
 }
 
 func TestHTTP_ACLTokenDelete(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	httpACLTest(t, nil, func(s *TestAgent) {
 		p1 := mock.ACLToken()
 		p1.AccessorID = ""
@@ -438,7 +482,7 @@ func TestHTTP_ACLTokenDelete(t *testing.T) {
 		assert.Nil(t, obj)
 
 		// Check for the index
-		if respW.HeaderMap.Get("X-Nomad-Index") == "" {
+		if respW.Result().Header.Get("X-Nomad-Index") == "" {
 			t.Fatalf("missing index")
 		}
 
@@ -451,7 +495,7 @@ func TestHTTP_ACLTokenDelete(t *testing.T) {
 }
 
 func TestHTTP_OneTimeToken(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	httpACLTest(t, nil, func(s *TestAgent) {
 
 		// Setup the ACL token

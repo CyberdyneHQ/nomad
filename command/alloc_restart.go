@@ -13,7 +13,7 @@ type AllocRestartCommand struct {
 	Meta
 }
 
-func (a *AllocRestartCommand) Help() string {
+func (c *AllocRestartCommand) Help() string {
 	helpText := `
 Usage: nomad alloc restart [options] <allocation> <task>
 
@@ -32,8 +32,8 @@ General Options:
 Restart Specific Options:
 
   -task <task-name>
-	Specify the individual task to restart. If task name is given with both an 
-	argument and the '-task' option, preference is given to the '-task' option.
+    Specify the individual task to restart. If task name is given with both an 
+    argument and the '-task' option, preference is given to the '-task' option.
 
   -verbose
     Show full information.
@@ -153,7 +153,7 @@ func validateTaskExistsInAllocation(taskName string, alloc *api.Allocation) erro
 	return fmt.Errorf("Could not find task named: %s, found:\n%s", taskName, formatList(foundTaskNames))
 }
 
-func (a *AllocRestartCommand) Synopsis() string {
+func (c *AllocRestartCommand) Synopsis() string {
 	return "Restart a running allocation"
 }
 

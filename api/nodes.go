@@ -49,6 +49,15 @@ func (n *Nodes) PrefixList(prefix string) ([]*NodeListStub, *QueryMeta, error) {
 	return n.List(&QueryOptions{Prefix: prefix})
 }
 
+func (n *Nodes) PrefixListOpts(prefix string, opts *QueryOptions) ([]*NodeListStub, *QueryMeta, error) {
+	if opts == nil {
+		opts = &QueryOptions{Prefix: prefix}
+	} else {
+		opts.Prefix = prefix
+	}
+	return n.List(opts)
+}
+
 // Info is used to query a specific node by its ID.
 func (n *Nodes) Info(nodeID string, q *QueryOptions) (*Node, *QueryMeta, error) {
 	var resp Node
@@ -506,6 +515,14 @@ type HostVolumeInfo struct {
 	ReadOnly bool
 }
 
+//HostNetworkInfo is used to return metadata about a given HostNetwork
+type HostNetworkInfo struct {
+	Name          string
+	CIDR          string
+	Interface     string
+	ReservedPorts string
+}
+
 type DrainStatus string
 
 // DrainMetadata contains information about the most recent drain operation for a given Node.
@@ -532,6 +549,7 @@ type Node struct {
 	Links                 map[string]string
 	Meta                  map[string]string
 	NodeClass             string
+	CgroupParent          string
 	Drain                 bool
 	DrainStrategy         *DrainStrategy
 	SchedulingEligibility string
@@ -541,6 +559,7 @@ type Node struct {
 	Events                []*NodeEvent
 	Drivers               map[string]*DriverInfo
 	HostVolumes           map[string]*HostVolumeInfo
+	HostNetworks          map[string]*HostNetworkInfo
 	CSIControllerPlugins  map[string]*CSIInfo
 	CSINodePlugins        map[string]*CSIInfo
 	LastDrain             *DrainMetadata
@@ -596,26 +615,82 @@ type NodeReservedNetworkResources struct {
 	ReservedHostPorts string
 }
 
+type CSITopologyRequest struct {
+	Required  []*CSITopology `hcl:"required"`
+	Preferred []*CSITopology `hcl:"preferred"`
+}
+
 type CSITopology struct {
-	Segments map[string]string
+	Segments map[string]string `hcl:"segments"`
 }
 
 // CSINodeInfo is the fingerprinted data from a CSI Plugin that is specific to
 // the Node API.
 type CSINodeInfo struct {
-	ID                      string
-	MaxVolumes              int64
-	AccessibleTopology      *CSITopology
+	ID                 string
+	MaxVolumes         int64
+	AccessibleTopology *CSITopology
+
+	// RequiresNodeStageVolume indicates whether the client should Stage/Unstage
+	// volumes on this node.
 	RequiresNodeStageVolume bool
+
+	// SupportsStats indicates plugin support for GET_VOLUME_STATS
+	SupportsStats bool
+
+	// SupportsExpand indicates plugin support for EXPAND_VOLUME
+	SupportsExpand bool
+
+	// SupportsCondition indicates plugin support for VOLUME_CONDITION
+	SupportsCondition bool
 }
 
 // CSIControllerInfo is the fingerprinted data from a CSI Plugin that is specific to
 // the Controller API.
 type CSIControllerInfo struct {
-	SupportsReadOnlyAttach           bool
-	SupportsAttachDetach             bool
-	SupportsListVolumes              bool
+	// SupportsCreateDelete indicates plugin support for CREATE_DELETE_VOLUME
+	SupportsCreateDelete bool
+
+	// SupportsPublishVolume is true when the controller implements the
+	// methods required to attach and detach volumes. If this is false Nomad
+	// should skip the controller attachment flow.
+	SupportsAttachDetach bool
+
+	// SupportsListVolumes is true when the controller implements the
+	// ListVolumes RPC. NOTE: This does not guarantee that attached nodes will
+	// be returned unless SupportsListVolumesAttachedNodes is also true.
+	SupportsListVolumes bool
+
+	// SupportsGetCapacity indicates plugin support for GET_CAPACITY
+	SupportsGetCapacity bool
+
+	// SupportsCreateDeleteSnapshot indicates plugin support for
+	// CREATE_DELETE_SNAPSHOT
+	SupportsCreateDeleteSnapshot bool
+
+	// SupportsListSnapshots indicates plugin support for LIST_SNAPSHOTS
+	SupportsListSnapshots bool
+
+	// SupportsClone indicates plugin support for CLONE_VOLUME
+	SupportsClone bool
+
+	// SupportsReadOnlyAttach is set to true when the controller returns the
+	// ATTACH_READONLY capability.
+	SupportsReadOnlyAttach bool
+
+	// SupportsExpand indicates plugin support for EXPAND_VOLUME
+	SupportsExpand bool
+
+	// SupportsListVolumesAttachedNodes indicates whether the plugin will
+	// return attached nodes data when making ListVolume RPCs (plugin support
+	// for LIST_VOLUMES_PUBLISHED_NODES)
 	SupportsListVolumesAttachedNodes bool
+
+	// SupportsCondition indicates plugin support for VOLUME_CONDITION
+	SupportsCondition bool
+
+	// SupportsGet indicates plugin support for GET_VOLUME
+	SupportsGet bool
 }
 
 // CSIInfo is the current state of a single CSI Plugin. This is updated regularly
@@ -831,6 +906,7 @@ func (v *StatValue) String() string {
 type NodeListStub struct {
 	Address               string
 	ID                    string
+	Attributes            map[string]string `json:",omitempty"`
 	Datacenter            string
 	Name                  string
 	NodeClass             string

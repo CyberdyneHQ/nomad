@@ -153,16 +153,17 @@ func (ar *allocRunner) initRunnerHooks(config *clientconfig.Config) error {
 		newNetworkHook(hookLogger, ns, alloc, nm, nc, ar, builtTaskEnv),
 		newGroupServiceHook(groupServiceHookConfig{
 			alloc:               alloc,
-			consul:              ar.consulClient,
-			consulNamespace:     alloc.ConsulNamespace(),
+			namespace:           alloc.ServiceProviderNamespace(),
+			serviceRegWrapper:   ar.serviceRegWrapper,
 			restarter:           ar,
 			taskEnvBuilder:      envBuilder,
 			networkStatusGetter: ar,
 			logger:              hookLogger,
+			shutdownDelayCtx:    ar.shutdownDelayCtx,
 		}),
 		newConsulGRPCSocketHook(hookLogger, alloc, ar.allocDir, config.ConsulConfig),
 		newConsulHTTPSocketHook(hookLogger, alloc, ar.allocDir, config.ConsulConfig),
-		newCSIHook(ar, hookLogger, alloc, ar.rpcClient, ar.csiManager, hrs),
+		newCSIHook(alloc, hookLogger, ar.csiManager, ar.rpcClient, ar, hrs, ar.clientConfig.Node.SecretID),
 	}
 
 	return nil

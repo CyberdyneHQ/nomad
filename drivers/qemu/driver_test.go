@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashicorp/nomad/ci"
 	ctestutil "github.com/hashicorp/nomad/client/testutil"
 	"github.com/hashicorp/nomad/helper/pluginutils/hclutils"
 	"github.com/hashicorp/nomad/helper/testlog"
@@ -26,10 +27,8 @@ import (
 
 // Verifies starting a qemu image and stopping it
 func TestQemuDriver_Start_Wait_Stop(t *testing.T) {
+	ci.Parallel(t)
 	ctestutil.QemuCompatible(t)
-	if !testutil.IsCI() {
-		t.Parallel()
-	}
 
 	require := require.New(t)
 	ctx, cancel := context.WithCancel(context.Background())
@@ -91,10 +90,8 @@ func TestQemuDriver_Start_Wait_Stop(t *testing.T) {
 
 // Verifies monitor socket path for old qemu
 func TestQemuDriver_GetMonitorPathOldQemu(t *testing.T) {
+	ci.Parallel(t)
 	ctestutil.QemuCompatible(t)
-	if !testutil.IsCI() {
-		t.Parallel()
-	}
 
 	require := require.New(t)
 	ctx, cancel := context.WithCancel(context.Background())
@@ -149,10 +146,8 @@ func TestQemuDriver_GetMonitorPathOldQemu(t *testing.T) {
 
 // Verifies monitor socket path for new qemu version
 func TestQemuDriver_GetMonitorPathNewQemu(t *testing.T) {
+	ci.Parallel(t)
 	ctestutil.QemuCompatible(t)
-	if !testutil.IsCI() {
-		t.Parallel()
-	}
 
 	require := require.New(t)
 	ctx, cancel := context.WithCancel(context.Background())
@@ -232,10 +227,8 @@ func copyFile(src, dst string, t *testing.T) {
 
 // Verifies starting a qemu image and stopping it
 func TestQemuDriver_User(t *testing.T) {
+	ci.Parallel(t)
 	ctestutil.QemuCompatible(t)
-	if !testutil.IsCI() {
-		t.Parallel()
-	}
 
 	require := require.New(t)
 	ctx, cancel := context.WithCancel(context.Background())
@@ -292,10 +285,8 @@ func TestQemuDriver_User(t *testing.T) {
 //  Verifies getting resource usage stats
 // TODO(preetha) this test needs random sleeps to pass
 func TestQemuDriver_Stats(t *testing.T) {
+	ci.Parallel(t)
 	ctestutil.QemuCompatible(t)
-	if !testutil.IsCI() {
-		t.Parallel()
-	}
 
 	require := require.New(t)
 	ctx, cancel := context.WithCancel(context.Background())
@@ -371,12 +362,10 @@ func TestQemuDriver_Stats(t *testing.T) {
 }
 
 func TestQemuDriver_Fingerprint(t *testing.T) {
+	ci.Parallel(t)
 	require := require.New(t)
 
 	ctestutil.QemuCompatible(t)
-	if !testutil.IsCI() {
-		t.Parallel()
-	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -396,9 +385,12 @@ func TestQemuDriver_Fingerprint(t *testing.T) {
 }
 
 func TestConfig_ParseAllHCL(t *testing.T) {
+	ci.Parallel(t)
+
 	cfgStr := `
 config {
   image_path = "/tmp/image_path"
+  drive_interface = "virtio"
   accelerator = "kvm"
   args = ["arg1", "arg2"]
   port_map {
@@ -409,9 +401,10 @@ config {
 }`
 
 	expected := &TaskConfig{
-		ImagePath:   "/tmp/image_path",
-		Accelerator: "kvm",
-		Args:        []string{"arg1", "arg2"},
+		ImagePath:      "/tmp/image_path",
+		DriveInterface: "virtio",
+		Accelerator:    "kvm",
+		Args:           []string{"arg1", "arg2"},
 		PortMap: map[string]int{
 			"http":  80,
 			"https": 443,
@@ -425,7 +418,22 @@ config {
 	require.EqualValues(t, expected, tc)
 }
 
+func TestIsAllowedDriveInterface(t *testing.T) {
+	validInterfaces := []string{"ide", "scsi", "sd", "mtd", "floppy", "pflash", "virtio", "none"}
+	invalidInterfaces := []string{"foo", "virtio-foo"}
+
+	for _, i := range validInterfaces {
+		require.Truef(t, isAllowedDriveInterface(i), "drive_interface should be allowed: %v", i)
+	}
+
+	for _, i := range invalidInterfaces {
+		require.Falsef(t, isAllowedDriveInterface(i), "drive_interface should be not allowed: %v", i)
+	}
+}
+
 func TestIsAllowedImagePath(t *testing.T) {
+	ci.Parallel(t)
+
 	allowedPaths := []string{"/tmp", "/opt/qemu"}
 	allocDir := "/opt/nomad/some-alloc-dir"
 
@@ -452,4 +460,34 @@ func TestIsAllowedImagePath(t *testing.T) {
 	for _, p := range invalidPaths {
 		require.Falsef(t, isAllowedImagePath(allowedPaths, allocDir, p), "path should be not allowed: %v", p)
 	}
+}
+
+func TestArgsAllowList(t *testing.T) {
+	ci.Parallel(t)
+	
+	pluginConfigAllowList := []string{"-drive", "-net", "-snapshot"}
+
+	validArgs := [][]string{
+		{"-drive", "/path/to/wherever", "-snapshot"},
+		{"-net", "tap,vlan=0,ifname=tap0"},
+	}
+
+	invalidArgs := [][]string{
+		{"-usbdevice", "mouse"},
+		{"-singlestep"},
+		{"--singlestep"},
+		{" -singlestep"},
+		{"\t-singlestep"},
+	}
+
+	for _, args := range validArgs {
+		require.NoError(t, validateArgs(pluginConfigAllowList, args))
+		require.NoError(t, validateArgs([]string{}, args))
+
+	}
+	for _, args := range invalidArgs {
+		require.Error(t, validateArgs(pluginConfigAllowList, args))
+		require.NoError(t, validateArgs([]string{}, args))
+	}
+
 }

@@ -25,7 +25,8 @@
         opacity: 0;
       }
 
-      $color-sequence: $orange, $yellow, $green, $turquoise, $blue, $purple, $red;
+      $color-sequence: $orange, $yellow, $green, $turquoise, $blue, $purple,
+        $red;
 
       @for $i from 1 through length($color-sequence) {
         .slice-#{$i - 1} {
@@ -59,7 +60,6 @@
         display: block;
         background-color: transparent;
         transition: background-color 0.1s ease-in-out;
-        border: 1px solid $grey-blue;
         padding: 0.25em 0.75em;
         margin: 0.25em;
         border-radius: $radius;
@@ -98,8 +98,6 @@
         &.is-clickable {
           a {
             display: block;
-            text-decoration: none;
-            color: inherit;
           }
 
           &:not(.is-empty) {
@@ -111,11 +109,16 @@
 
         &.is-empty {
           color: darken($grey-blue, 20%);
-          border: none;
 
           .label {
             color: darken($grey-blue, 20%);
           }
+        }
+
+        // Prevent Orphaned last-elements in the list
+        // from being visually centered
+        &:nth-child(2n + 1):last-child {
+          margin-right: calc(35% + 0.75em);
         }
       }
     }

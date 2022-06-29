@@ -13,7 +13,7 @@ import (
 )
 
 func TestJobs_Register(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	require := require.New(t)
 
 	c, s := makeClient(t, nil, nil)
@@ -45,7 +45,7 @@ func TestJobs_Register(t *testing.T) {
 }
 
 func TestJobs_Register_PreserveCounts(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	require := require.New(t)
 
 	c, s := makeClient(t, nil, nil)
@@ -117,7 +117,7 @@ func TestJobs_Register_PreserveCounts(t *testing.T) {
 }
 
 func TestJobs_Register_NoPreserveCounts(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	require := require.New(t)
 
 	c, s := makeClient(t, nil, nil)
@@ -187,8 +187,62 @@ func TestJobs_Register_NoPreserveCounts(t *testing.T) {
 	require.Equal(3, status.TaskGroups["group3"].Desired) // new     => as specified
 }
 
+func TestJobs_Register_EvalPriority(t *testing.T) {
+	testutil.Parallel(t)
+	requireAssert := require.New(t)
+
+	c, s := makeClient(t, nil, nil)
+	defer s.Stop()
+
+	// Listing jobs before registering returns nothing
+	listResp, _, err := c.Jobs().List(nil)
+	requireAssert.Nil(err)
+	requireAssert.Len(listResp, 0)
+
+	// Create a job and register it with an eval priority.
+	job := testJob()
+	registerResp, wm, err := c.Jobs().RegisterOpts(job, &RegisterOptions{EvalPriority: 99}, nil)
+	requireAssert.Nil(err)
+	requireAssert.NotNil(registerResp)
+	requireAssert.NotEmpty(registerResp.EvalID)
+	assertWriteMeta(t, wm)
+
+	// Check the created job evaluation has a priority that matches our desired
+	// value.
+	evalInfo, _, err := c.Evaluations().Info(registerResp.EvalID, nil)
+	requireAssert.NoError(err)
+	requireAssert.Equal(99, evalInfo.Priority)
+}
+
+func TestJobs_Register_NoEvalPriority(t *testing.T) {
+	testutil.Parallel(t)
+	requireAssert := require.New(t)
+
+	c, s := makeClient(t, nil, nil)
+	defer s.Stop()
+
+	// Listing jobs before registering returns nothing
+	listResp, _, err := c.Jobs().List(nil)
+	requireAssert.Nil(err)
+	requireAssert.Len(listResp, 0)
+
+	// Create a job and register it with an eval priority.
+	job := testJob()
+	registerResp, wm, err := c.Jobs().RegisterOpts(job, nil, nil)
+	requireAssert.Nil(err)
+	requireAssert.NotNil(registerResp)
+	requireAssert.NotEmpty(registerResp.EvalID)
+	assertWriteMeta(t, wm)
+
+	// Check the created job evaluation has a priority that matches the job
+	// priority.
+	evalInfo, _, err := c.Evaluations().Info(registerResp.EvalID, nil)
+	requireAssert.NoError(err)
+	requireAssert.Equal(*job.Priority, evalInfo.Priority)
+}
+
 func TestJobs_Validate(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	c, s := makeClient(t, nil, nil)
 	defer s.Stop()
 	jobs := c.Jobs()
@@ -216,7 +270,7 @@ func TestJobs_Validate(t *testing.T) {
 }
 
 func TestJobs_Canonicalize(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	testCases := []struct {
 		name     string
 		expected *Job
@@ -522,7 +576,7 @@ func TestJobs_Canonicalize(t *testing.T) {
 								Name:   "redis",
 								Driver: "docker",
 								Config: map[string]interface{}{
-									"image": "redis:3.2",
+									"image": "redis:7",
 									"port_map": []map[string]int{{
 										"db": 6379,
 									}},
@@ -654,7 +708,7 @@ func TestJobs_Canonicalize(t *testing.T) {
 								Name:   "redis",
 								Driver: "docker",
 								Config: map[string]interface{}{
-									"image": "redis:3.2",
+									"image": "redis:7",
 									"port_map": []map[string]int{{
 										"db": 6379,
 									}},
@@ -688,6 +742,7 @@ func TestJobs_Canonicalize(t *testing.T) {
 										PortLabel:   "db",
 										AddressMode: "auto",
 										OnUpdate:    "require_healthy",
+										Provider:    "consul",
 										Checks: []ServiceCheck{
 											{
 												Name:     "alive",
@@ -1228,7 +1283,7 @@ func TestJobs_Canonicalize(t *testing.T) {
 }
 
 func TestJobs_EnforceRegister(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	require := require.New(t)
 	c, s := makeClient(t, nil, nil)
 	defer s.Stop()
@@ -1274,7 +1329,7 @@ func TestJobs_EnforceRegister(t *testing.T) {
 }
 
 func TestJobs_Revert(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	c, s := makeClient(t, nil, nil)
 	defer s.Stop()
 	jobs := c.Jobs()
@@ -1324,7 +1379,7 @@ func TestJobs_Revert(t *testing.T) {
 }
 
 func TestJobs_Info(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	c, s := makeClient(t, nil, nil)
 	defer s.Stop()
 	jobs := c.Jobs()
@@ -1360,7 +1415,7 @@ func TestJobs_Info(t *testing.T) {
 }
 
 func TestJobs_ScaleInvalidAction(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	require := require.New(t)
 
 	c, s := makeClient(t, nil, nil)
@@ -1400,7 +1455,7 @@ func TestJobs_ScaleInvalidAction(t *testing.T) {
 }
 
 func TestJobs_Versions(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	c, s := makeClient(t, nil, nil)
 	defer s.Stop()
 	jobs := c.Jobs()
@@ -1433,7 +1488,7 @@ func TestJobs_Versions(t *testing.T) {
 }
 
 func TestJobs_PrefixList(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	c, s := makeClient(t, nil, nil)
 	defer s.Stop()
 	jobs := c.Jobs()
@@ -1469,7 +1524,7 @@ func TestJobs_PrefixList(t *testing.T) {
 }
 
 func TestJobs_List(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	c, s := makeClient(t, nil, nil)
 	defer s.Stop()
 	jobs := c.Jobs()
@@ -1505,7 +1560,7 @@ func TestJobs_List(t *testing.T) {
 }
 
 func TestJobs_Allocations(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	c, s := makeClient(t, nil, nil)
 	defer s.Stop()
 	jobs := c.Jobs()
@@ -1527,7 +1582,7 @@ func TestJobs_Allocations(t *testing.T) {
 }
 
 func TestJobs_Evaluations(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	c, s := makeClient(t, nil, nil)
 	defer s.Stop()
 	jobs := c.Jobs()
@@ -1569,7 +1624,7 @@ func TestJobs_Evaluations(t *testing.T) {
 }
 
 func TestJobs_Deregister(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	c, s := makeClient(t, nil, nil)
 	defer s.Stop()
 	jobs := c.Jobs()
@@ -1628,8 +1683,70 @@ func TestJobs_Deregister(t *testing.T) {
 	}
 }
 
+func TestJobs_Deregister_EvalPriority(t *testing.T) {
+	testutil.Parallel(t)
+	requireAssert := require.New(t)
+
+	c, s := makeClient(t, nil, nil)
+	defer s.Stop()
+
+	// Listing jobs before registering returns nothing
+	listResp, _, err := c.Jobs().List(nil)
+	requireAssert.Nil(err)
+	requireAssert.Len(listResp, 0)
+
+	// Create a job and register it.
+	job := testJob()
+	registerResp, wm, err := c.Jobs().Register(job, nil)
+	requireAssert.Nil(err)
+	requireAssert.NotNil(registerResp)
+	requireAssert.NotEmpty(registerResp.EvalID)
+	assertWriteMeta(t, wm)
+
+	// Deregister the job with an eval priority.
+	evalID, _, err := c.Jobs().DeregisterOpts(*job.ID, &DeregisterOptions{EvalPriority: 97}, nil)
+	requireAssert.NoError(err)
+	requireAssert.NotEmpty(t, evalID)
+
+	// Lookup the eval and check the priority on it.
+	evalInfo, _, err := c.Evaluations().Info(evalID, nil)
+	requireAssert.NoError(err)
+	requireAssert.Equal(97, evalInfo.Priority)
+}
+
+func TestJobs_Deregister_NoEvalPriority(t *testing.T) {
+	testutil.Parallel(t)
+	requireAssert := require.New(t)
+
+	c, s := makeClient(t, nil, nil)
+	defer s.Stop()
+
+	// Listing jobs before registering returns nothing
+	listResp, _, err := c.Jobs().List(nil)
+	requireAssert.Nil(err)
+	requireAssert.Len(listResp, 0)
+
+	// Create a job and register it.
+	job := testJob()
+	registerResp, wm, err := c.Jobs().Register(job, nil)
+	requireAssert.Nil(err)
+	requireAssert.NotNil(registerResp)
+	requireAssert.NotEmpty(registerResp.EvalID)
+	assertWriteMeta(t, wm)
+
+	// Deregister the job with an eval priority.
+	evalID, _, err := c.Jobs().DeregisterOpts(*job.ID, &DeregisterOptions{}, nil)
+	requireAssert.NoError(err)
+	requireAssert.NotEmpty(t, evalID)
+
+	// Lookup the eval and check the priority on it.
+	evalInfo, _, err := c.Evaluations().Info(evalID, nil)
+	requireAssert.NoError(err)
+	requireAssert.Equal(*job.Priority, evalInfo.Priority)
+}
+
 func TestJobs_ForceEvaluate(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	c, s := makeClient(t, nil, nil)
 	defer s.Stop()
 	jobs := c.Jobs()
@@ -1669,7 +1786,7 @@ func TestJobs_ForceEvaluate(t *testing.T) {
 }
 
 func TestJobs_PeriodicForce(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	c, s := makeClient(t, nil, nil)
 	defer s.Stop()
 	jobs := c.Jobs()
@@ -1722,7 +1839,7 @@ func TestJobs_PeriodicForce(t *testing.T) {
 }
 
 func TestJobs_Plan(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	c, s := makeClient(t, nil, nil)
 	defer s.Stop()
 	jobs := c.Jobs()
@@ -1794,7 +1911,7 @@ func TestJobs_Plan(t *testing.T) {
 }
 
 func TestJobs_JobSummary(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	c, s := makeClient(t, nil, nil)
 	defer s.Stop()
 	jobs := c.Jobs()
@@ -1832,7 +1949,7 @@ func TestJobs_JobSummary(t *testing.T) {
 }
 
 func TestJobs_NewBatchJob(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	job := NewBatchJob("job1", "myjob", "global", 5)
 	expect := &Job{
 		Region:   stringToPtr("global"),
@@ -1847,7 +1964,7 @@ func TestJobs_NewBatchJob(t *testing.T) {
 }
 
 func TestJobs_NewServiceJob(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	job := NewServiceJob("job1", "myjob", "global", 5)
 	expect := &Job{
 		Region:   stringToPtr("global"),
@@ -1862,7 +1979,7 @@ func TestJobs_NewServiceJob(t *testing.T) {
 }
 
 func TestJobs_NewSystemJob(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	job := NewSystemJob("job1", "myjob", "global", 5)
 	expect := &Job{
 		Region:   stringToPtr("global"),
@@ -1876,8 +1993,21 @@ func TestJobs_NewSystemJob(t *testing.T) {
 	}
 }
 
+func TestJobs_NewSysbatchJob(t *testing.T) {
+	testutil.Parallel(t)
+	job := NewSysbatchJob("job1", "myjob", "global", 5)
+	expect := &Job{
+		Region:   stringToPtr("global"),
+		ID:       stringToPtr("job1"),
+		Name:     stringToPtr("myjob"),
+		Type:     stringToPtr(JobTypeSysbatch),
+		Priority: intToPtr(5),
+	}
+	require.Equal(t, expect, job)
+}
+
 func TestJobs_SetMeta(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	job := &Job{Meta: nil}
 
 	// Initializes a nil map
@@ -1900,7 +2030,7 @@ func TestJobs_SetMeta(t *testing.T) {
 }
 
 func TestJobs_Constrain(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	job := &Job{Constraints: nil}
 
 	// Create and add a constraint
@@ -1934,7 +2064,7 @@ func TestJobs_Constrain(t *testing.T) {
 }
 
 func TestJobs_AddAffinity(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	job := &Job{Affinities: nil}
 
 	// Create and add an affinity
@@ -1970,7 +2100,7 @@ func TestJobs_AddAffinity(t *testing.T) {
 }
 
 func TestJobs_Sort(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	jobs := []*JobListStub{
 		{ID: "job2"},
 		{ID: "job0"},
@@ -1989,7 +2119,7 @@ func TestJobs_Sort(t *testing.T) {
 }
 
 func TestJobs_AddSpread(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	job := &Job{Spreads: nil}
 
 	// Create and add a Spread
@@ -2041,7 +2171,7 @@ func TestJobs_AddSpread(t *testing.T) {
 
 // TestJobs_ScaleAction tests the scale target for task group count
 func TestJobs_ScaleAction(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	require := require.New(t)
 
 	c, s := makeClient(t, nil, nil)
@@ -2102,7 +2232,7 @@ func TestJobs_ScaleAction(t *testing.T) {
 }
 
 func TestJobs_ScaleAction_Error(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	require := require.New(t)
 
 	c, s := makeClient(t, nil, nil)
@@ -2154,7 +2284,7 @@ func TestJobs_ScaleAction_Error(t *testing.T) {
 }
 
 func TestJobs_ScaleAction_Noop(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 	require := require.New(t)
 
 	c, s := makeClient(t, nil, nil)
@@ -2207,7 +2337,7 @@ func TestJobs_ScaleAction_Noop(t *testing.T) {
 
 // TestJobs_ScaleStatus tests the /scale status endpoint for task group count
 func TestJobs_ScaleStatus(t *testing.T) {
-	t.Parallel()
+	testutil.Parallel(t)
 
 	require := require.New(t)
 
@@ -2239,4 +2369,83 @@ func TestJobs_ScaleStatus(t *testing.T) {
 
 	// Check that the result is what we expect
 	require.Equal(groupCount, result.TaskGroups[groupName].Desired)
+}
+
+func TestJobs_Services(t *testing.T) {
+	// TODO(jrasell) add tests once registration process is in place.
+}
+
+// TestJobs_Parse asserts ParseHCL and ParseHCLOpts use the API to parse HCL.
+func TestJobs_Parse(t *testing.T) {
+	testutil.Parallel(t)
+
+	jobspec := `job "example" {}`
+
+	// Assert ParseHCL returns an error if Nomad is not running to ensure
+	// that parsing is done server-side and not via the jobspec package.
+	{
+		c, err := NewClient(DefaultConfig())
+		require.NoError(t, err)
+
+		_, err = c.Jobs().ParseHCL(jobspec, false)
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "Put")
+	}
+
+	c, s := makeClient(t, nil, nil)
+	defer s.Stop()
+
+	// Test ParseHCL
+	job1, err := c.Jobs().ParseHCL(jobspec, false)
+	require.NoError(t, err)
+	require.Equal(t, "example", *job1.Name)
+	require.Nil(t, job1.Namespace)
+
+	job1Canonicalized, err := c.Jobs().ParseHCL(jobspec, true)
+	require.NoError(t, err)
+	require.Equal(t, "example", *job1Canonicalized.Name)
+	require.Equal(t, "default", *job1Canonicalized.Namespace)
+	require.NotEqual(t, job1, job1Canonicalized)
+
+	// Test ParseHCLOpts
+	req := &JobsParseRequest{
+		JobHCL:       jobspec,
+		HCLv1:        false,
+		Canonicalize: false,
+	}
+
+	job2, err := c.Jobs().ParseHCLOpts(req)
+	require.NoError(t, err)
+	require.Equal(t, job1, job2)
+
+	// Test ParseHCLOpts with Canonicalize=true
+	req = &JobsParseRequest{
+		JobHCL:       jobspec,
+		HCLv1:        false,
+		Canonicalize: true,
+	}
+	job2Canonicalized, err := c.Jobs().ParseHCLOpts(req)
+	require.NoError(t, err)
+	require.Equal(t, job1Canonicalized, job2Canonicalized)
+
+	// Test ParseHCLOpts with HCLv1=true
+	req = &JobsParseRequest{
+		JobHCL:       jobspec,
+		HCLv1:        true,
+		Canonicalize: false,
+	}
+
+	job3, err := c.Jobs().ParseHCLOpts(req)
+	require.NoError(t, err)
+	require.Equal(t, job1, job3)
+
+	// Test ParseHCLOpts with HCLv1=true and Canonicalize=true
+	req = &JobsParseRequest{
+		JobHCL:       jobspec,
+		HCLv1:        true,
+		Canonicalize: true,
+	}
+	job3Canonicalized, err := c.Jobs().ParseHCLOpts(req)
+	require.NoError(t, err)
+	require.Equal(t, job1Canonicalized, job3Canonicalized)
 }

@@ -283,9 +283,16 @@ func (w *deploymentWatcher) autoPromoteDeployment(allocs []*structs.AllocListStu
 		return nil
 	}
 
-	// AutoPromote iff every task group is marked auto_promote and is healthy. The whole
+	// AutoPromote iff every task group with canaries is marked auto_promote and is healthy. The whole
 	// job version has been incremented, so we promote together. See also AutoRevert
 	for _, dstate := range d.TaskGroups {
+
+		// skip auto promote canary validation if the task group has no canaries
+		// to prevent auto promote hanging on mixed canary/non-canary taskgroup deploys
+		if dstate.DesiredCanaries < 1 {
+			continue
+		}
+
 		if !dstate.AutoPromote || dstate.DesiredCanaries != len(dstate.PlacedCanaries) {
 			return nil
 		}
@@ -824,10 +831,20 @@ func (w *deploymentWatcher) createBatchedUpdate(allowReplacements []string, forI
 // getEval returns an evaluation suitable for the deployment
 func (w *deploymentWatcher) getEval() *structs.Evaluation {
 	now := time.Now().UTC().UnixNano()
+
+	// During a server upgrade it's possible we end up with deployments created
+	// on the previous version that are then "watched" on a leader that's on
+	// the new version. This would result in an eval with its priority set to
+	// zero which would be bad. This therefore protects against that.
+	priority := w.d.EvalPriority
+	if priority == 0 {
+		priority = w.j.Priority
+	}
+
 	return &structs.Evaluation{
 		ID:           uuid.Generate(),
 		Namespace:    w.j.Namespace,
-		Priority:     w.j.Priority,
+		Priority:     priority,
 		Type:         w.j.Type,
 		TriggeredBy:  structs.EvalTriggerDeploymentWatcher,
 		JobID:        w.j.ID,

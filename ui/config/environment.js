@@ -6,8 +6,14 @@ if (process.env.USE_MIRAGE) {
   USE_MIRAGE = process.env.USE_MIRAGE == 'true';
 }
 
-module.exports = function(environment) {
-  var ENV = {
+let USE_PERCY = true;
+
+if (process.env.USE_PERCY) {
+  USE_PERCY = process.env.USE_PERCY == 'true';
+}
+
+module.exports = function (environment) {
+  let ENV = {
     modulePrefix: 'nomad-ui',
     environment: environment,
     rootURL: '/ui/',
@@ -25,12 +31,15 @@ module.exports = function(environment) {
 
     APP: {
       blockingQueries: true,
-      // TODO: revert before merging to main.
-      mirageScenario: 'sysbatchSmall', // convert to 'sysbatchSmall' when working on feature
-      mirageWithNamespaces: false,
+      mirageScenario: 'smallCluster',
+      mirageWithNamespaces: true,
       mirageWithTokens: true,
       mirageWithRegions: true,
       showStorybookLink: process.env.STORYBOOK_LINK === 'true',
+    },
+
+    percy: {
+      enabled: USE_PERCY,
     },
   };
 

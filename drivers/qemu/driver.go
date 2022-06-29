@@ -41,6 +41,9 @@ const (
 	qemuGracefulShutdownMsg = "system_powerdown\n"
 	qemuMonitorSocketName   = "qemu-monitor.sock"
 
+	// Socket file enabling communication with the Qemu Guest Agent (if enabled and running)
+	qemuGuestAgentSocketName = "qemu-guest-agent.sock"
+
 	// Maximum socket path length prior to qemu 2.10.1
 	qemuLegacyMaxMonitorPathLen = 108
 
@@ -84,15 +87,18 @@ var (
 
 	// configSpec is the hcl specification returned by the ConfigSchema RPC
 	configSpec = hclspec.NewObject(map[string]*hclspec.Spec{
-		"image_paths": hclspec.NewAttr("image_paths", "list(string)", false),
+		"image_paths":    hclspec.NewAttr("image_paths", "list(string)", false),
+		"args_allowlist": hclspec.NewAttr("args_allowlist", "list(string)", false),
 	})
 
 	// taskConfigSpec is the hcl specification for the driver config section of
 	// a taskConfig within a job. It is returned in the TaskConfigSchema RPC
 	taskConfigSpec = hclspec.NewObject(map[string]*hclspec.Spec{
 		"image_path":        hclspec.NewAttr("image_path", "string", true),
+		"drive_interface":   hclspec.NewAttr("drive_interface", "string", false),
 		"accelerator":       hclspec.NewAttr("accelerator", "string", false),
 		"graceful_shutdown": hclspec.NewAttr("graceful_shutdown", "bool", false),
+		"guest_agent":       hclspec.NewAttr("guest_agent", "bool", false),
 		"args":              hclspec.NewAttr("args", "list(string)", false),
 		"port_map":          hclspec.NewAttr("port_map", "list(map(number))", false),
 	})
@@ -120,6 +126,8 @@ type TaskConfig struct {
 	Args             []string           `codec:"args"`     // extra arguments to qemu executable
 	PortMap          hclutils.MapStrInt `codec:"port_map"` // A map of host port and the port name defined in the image manifest file
 	GracefulShutdown bool               `codec:"graceful_shutdown"`
+	DriveInterface   string             `codec:"drive_interface"` // Use interface for image
+	GuestAgent       bool               `codec:"guest_agent"`
 }
 
 // TaskState is the state which is encoded in the handle returned in StartTask.
@@ -136,6 +144,11 @@ type TaskState struct {
 type Config struct {
 	// ImagePaths is an allow-list of paths qemu is allowed to load an image from
 	ImagePaths []string `codec:"image_paths"`
+
+	// ArgsAllowList is an allow-list of arguments the jobspec can
+	// include in arguments to qemu, so that cluster operators can can
+	// prevent access to devices
+	ArgsAllowList []string `codec:"args_allowlist"`
 }
 
 // Driver is a driver for running images via Qemu
@@ -263,11 +276,6 @@ func (d *Driver) RecoverTask(handle *drivers.TaskHandle) error {
 		return fmt.Errorf("error: handle cannot be nil")
 	}
 
-	// COMPAT(0.10): pre 0.9 upgrade path check
-	if handle.Version == 0 {
-		return d.recoverPre09Task(handle)
-	}
-
 	// If already attached to handle there's nothing to recover.
 	if _, ok := d.tasks.Get(handle.Config.ID); ok {
 		d.logger.Trace("nothing to recover; task already exists",
@@ -338,6 +346,39 @@ func isAllowedImagePath(allowedPaths []string, allocDir, imagePath string) bool 
 	return false
 }
 
+// hardcoded list of drive interfaces, Qemu currently supports
+var allowedDriveInterfaces = []string{"ide", "scsi", "sd", "mtd", "floppy", "pflash", "virtio", "none"}
+
+func isAllowedDriveInterface(driveInterface string) bool {
+	for _, ai := range allowedDriveInterfaces {
+		if driveInterface == ai {
+			return true
+		}
+	}
+
+	return false
+}
+
+// validateArgs ensures that all QEMU command line params are in the
+// allowlist. This function must be called after all interpolation has
+// taken place.
+func validateArgs(pluginConfigAllowList, args []string) error {
+	if len(pluginConfigAllowList) > 0 {
+		allowed := map[string]struct{}{}
+		for _, arg := range pluginConfigAllowList {
+			allowed[arg] = struct{}{}
+		}
+		for _, arg := range args {
+			if strings.HasPrefix(strings.TrimSpace(arg), "-") {
+				if _, ok := allowed[arg]; !ok {
+					return fmt.Errorf("%q is not in args_allowlist", arg)
+				}
+			}
+		}
+	}
+	return nil
+}
+
 func (d *Driver) StartTask(cfg *drivers.TaskConfig) (*drivers.TaskHandle, *drivers.DriverNetwork, error) {
 	if _, ok := d.tasks.Get(cfg.ID); ok {
 		return nil, nil, fmt.Errorf("taskConfig with ID '%s' already started", cfg.ID)
@@ -354,6 +395,10 @@ func (d *Driver) StartTask(cfg *drivers.TaskConfig) (*drivers.TaskHandle, *drive
 
 	handle := drivers.NewTaskHandle(taskHandleVersion)
 	handle.Config = cfg
+
+	if err := validateArgs(d.config.ArgsAllowList, driverConfig.Args); err != nil {
+		return nil, nil, err
+	}
 
 	// Get the image source
 	vmPath := driverConfig.ImagePath
@@ -384,12 +429,20 @@ func (d *Driver) StartTask(cfg *drivers.TaskConfig) (*drivers.TaskHandle, *drive
 		return nil, nil, err
 	}
 
+	driveInterface := "ide"
+	if driverConfig.DriveInterface != "" {
+		driveInterface = driverConfig.DriveInterface
+	}
+	if !isAllowedDriveInterface(driveInterface) {
+		return nil, nil, fmt.Errorf("Unsupported drive_interface")
+	}
+
 	args := []string{
 		absPath,
 		"-machine", "type=pc,accel=" + accelerator,
 		"-name", vmID,
 		"-m", mem,
-		"-drive", "file=" + vmPath,
+		"-drive", "file=" + vmPath + ",if=" + driveInterface,
 		"-nographic",
 	}
 
@@ -423,6 +476,17 @@ func (d *Driver) StartTask(cfg *drivers.TaskConfig) (*drivers.TaskHandle, *drive
 		}
 		d.logger.Debug("got monitor path", "monitorPath", monitorPath)
 		args = append(args, "-monitor", fmt.Sprintf("unix:%s,server,nowait", monitorPath))
+	}
+
+	if driverConfig.GuestAgent {
+		if runtime.GOOS == "windows" {
+			return nil, nil, errors.New("QEMU Guest Agent socket is unsupported on the Windows platform")
+		}
+		// This socket will be used to communicate with the Guest Agent (if it's running)
+		taskDir := filepath.Join(cfg.AllocDir, cfg.Name)
+		args = append(args, "-chardev", fmt.Sprintf("socket,path=%s/%s,server,nowait,id=qga0", taskDir, qemuGuestAgentSocketName))
+		args = append(args, "-device", "virtio-serial")
+		args = append(args, "-device", "virtserialport,chardev=qga0,name=org.qemu.guest_agent.0")
 	}
 
 	// Add pass through arguments to qemu executable. A user can specify

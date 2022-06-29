@@ -154,6 +154,7 @@ func (p *planner) planApply() {
 		// This also limits how out of date our snapshot can be.
 		if planIndexCh != nil {
 			idx := <-planIndexCh
+			planIndexCh = nil
 			prevPlanResultIndex = max(prevPlanResultIndex, idx)
 			snap, err = p.snapshotMinIndex(prevPlanResultIndex, pending.plan.SnapshotIndex)
 			if err != nil {
@@ -177,7 +178,7 @@ func (p *planner) planApply() {
 	}
 }
 
-// snapshotMinIndex wraps SnapshotAfter with a 5s timeout and converts timeout
+// snapshotMinIndex wraps SnapshotAfter with a 10s timeout and converts timeout
 // errors to a more descriptive error message. The snapshot is guaranteed to
 // include both the previous plan and all objects referenced by the plan or
 // return an error.
@@ -188,7 +189,11 @@ func (p *planner) snapshotMinIndex(prevPlanResultIndex, planSnapshotIndex uint64
 	// plan result's and current plan's snapshot index.
 	minIndex := max(prevPlanResultIndex, planSnapshotIndex)
 
-	const timeout = 5 * time.Second
+	// This timeout creates backpressure where any concurrent
+	// Plan.Submit RPCs will block waiting for results. This sheds
+	// load across all servers and gives raft some CPU to catch up,
+	// because schedulers won't dequeue more work while waiting.
+	const timeout = 10 * time.Second
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	snap, err := p.fsm.State().SnapshotMinIndex(ctx, minIndex)
 	cancel()
@@ -368,14 +373,12 @@ func updateAllocTimestamps(allocations []*structs.Allocation, timestamp int64) {
 func (p *planner) asyncPlanWait(indexCh chan<- uint64, future raft.ApplyFuture,
 	result *structs.PlanResult, pending *pendingPlan) {
 	defer metrics.MeasureSince([]string{"nomad", "plan", "apply"}, time.Now())
+	defer close(indexCh)
 
 	// Wait for the plan to apply
 	if err := future.Error(); err != nil {
 		p.logger.Error("failed to apply plan", "error", err)
 		pending.respond(nil, err)
-
-		// Close indexCh on error
-		close(indexCh)
 		return
 	}
 
@@ -475,9 +478,19 @@ func evaluatePlanPlacements(pool *EvaluatePool, snap *state.StateSnapshot, plan 
 			return true
 		}
 		if !fit {
+			metrics.IncrCounterWithLabels([]string{"nomad", "plan", "node_rejected"}, 1, []metrics.Label{{Name: "node_id", Value: nodeID}})
+
 			// Log the reason why the node's allocations could not be made
 			if reason != "" {
-				logger.Debug("plan for node rejected", "node_id", nodeID, "reason", reason, "eval_id", plan.EvalID)
+				//TODO This was debug level and should return
+				//to debug level in the future. However until
+				//https://github.com/hashicorp/nomad/issues/9506
+				//is resolved this log line is the only way to
+				//monitor the disagreement between workers and
+				//the plan applier.
+				logger.Info("plan for node rejected, refer to https://www.nomadproject.io/s/port-plan-failure for more information",
+					"node_id", nodeID, "reason", reason, "eval_id", plan.EvalID,
+					"namespace", plan.Job.Namespace)
 			}
 			// Set that this is a partial commit
 			partialCommit = true
@@ -646,16 +659,28 @@ func evaluateNodePlan(snap *state.StateSnapshot, plan *structs.Plan, nodeID stri
 	// the Raft commit happens.
 	if node == nil {
 		return false, "node does not exist", nil
+	} else if node.Status == structs.NodeStatusDisconnected {
+		if isValidForDisconnectedNode(plan, node.ID) {
+			return true, "", nil
+		}
+		return false, "node is disconnected and contains invalid updates", nil
 	} else if node.Status != structs.NodeStatusReady {
 		return false, "node is not ready for placements", nil
-	} else if node.SchedulingEligibility == structs.NodeSchedulingIneligible {
-		return false, "node is not eligible", nil
 	}
 
 	// Get the existing allocations that are non-terminal
 	existingAlloc, err := snap.AllocsByNodeTerminal(ws, nodeID, false)
 	if err != nil {
 		return false, "", fmt.Errorf("failed to get existing allocations for '%s': %v", nodeID, err)
+	}
+
+	// If nodeAllocations is a subset of the existing allocations we can continue,
+	// even if the node is not eligible, as only in-place updates or stop/evict are performed
+	if structs.AllocSubset(existingAlloc, plan.NodeAllocation[nodeID]) {
+		return true, "", nil
+	}
+	if node.SchedulingEligibility == structs.NodeSchedulingIneligible {
+		return false, "node is not eligible", nil
 	}
 
 	// Determine the proposed allocation by first removing allocations
@@ -679,6 +704,18 @@ func evaluateNodePlan(snap *state.StateSnapshot, plan *structs.Plan, nodeID stri
 	// Check if these allocations fit
 	fit, reason, _, err := structs.AllocsFit(node, proposed, nil, true)
 	return fit, reason, err
+}
+
+// The plan is only valid for disconnected nodes if it only contains
+// updates to mark allocations as unknown.
+func isValidForDisconnectedNode(plan *structs.Plan, nodeID string) bool {
+	for _, alloc := range plan.NodeAllocation[nodeID] {
+		if alloc.ClientStatus != structs.AllocClientStatusUnknown {
+			return false
+		}
+	}
+
+	return true
 }
 
 func max(a, b uint64) uint64 {

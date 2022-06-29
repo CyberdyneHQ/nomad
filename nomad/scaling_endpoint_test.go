@@ -5,17 +5,18 @@ import (
 	"time"
 
 	msgpackrpc "github.com/hashicorp/net-rpc-msgpackrpc"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-
 	"github.com/hashicorp/nomad/acl"
+	"github.com/hashicorp/nomad/ci"
 	"github.com/hashicorp/nomad/helper/uuid"
 	"github.com/hashicorp/nomad/nomad/mock"
 	"github.com/hashicorp/nomad/nomad/structs"
 	"github.com/hashicorp/nomad/testutil"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestScalingEndpoint_StaleReadSupport(t *testing.T) {
+	ci.Parallel(t)
 	assert := assert.New(t)
 	list := &structs.ScalingPolicyListRequest{}
 	assert.True(list.IsRead())
@@ -24,7 +25,7 @@ func TestScalingEndpoint_StaleReadSupport(t *testing.T) {
 }
 
 func TestScalingEndpoint_GetPolicy(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	require := require.New(t)
 
 	s1, cleanupS1 := TestServer(t, nil)
@@ -36,7 +37,11 @@ func TestScalingEndpoint_GetPolicy(t *testing.T) {
 	p2 := mock.ScalingPolicy()
 	s1.fsm.State().UpsertScalingPolicies(1000, []*structs.ScalingPolicy{p1, p2})
 
-	// Lookup the policy
+	// Add another policy at a higher index.
+	p3 := mock.ScalingPolicy()
+	require.NoError(s1.fsm.State().UpsertScalingPolicies(2000, []*structs.ScalingPolicy{p3}))
+
+	// Lookup the first policy and perform assertions.
 	get := &structs.ScalingPolicySpecificRequest{
 		ID: p1.ID,
 		QueryOptions: structs.QueryOptions{
@@ -54,12 +59,12 @@ func TestScalingEndpoint_GetPolicy(t *testing.T) {
 	resp = structs.SingleScalingPolicyResponse{}
 	err = msgpackrpc.CallWithCodec(codec, "Scaling.GetPolicy", get, &resp)
 	require.NoError(err)
-	require.EqualValues(1000, resp.Index)
+	require.EqualValues(2000, resp.Index)
 	require.Nil(resp.Policy)
 }
 
 func TestScalingEndpoint_GetPolicy_ACL(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	require := require.New(t)
 
 	s1, root, cleanupS1 := TestACLServer(t, nil)
@@ -134,7 +139,7 @@ func TestScalingEndpoint_GetPolicy_ACL(t *testing.T) {
 }
 
 func TestScalingEndpoint_ListPolicies(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 
 	s1, cleanupS1 := TestServer(t, nil)
 	defer cleanupS1()
@@ -226,7 +231,7 @@ func TestScalingEndpoint_ListPolicies(t *testing.T) {
 }
 
 func TestScalingEndpoint_ListPolicies_ACL(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	require := require.New(t)
 
 	s1, root, cleanupS1 := TestACLServer(t, nil)
@@ -305,7 +310,7 @@ func TestScalingEndpoint_ListPolicies_ACL(t *testing.T) {
 }
 
 func TestScalingEndpoint_ListPolicies_Blocking(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	require := require.New(t)
 
 	s1, cleanupS1 := TestServer(t, nil)

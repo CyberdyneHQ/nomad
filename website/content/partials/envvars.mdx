@@ -56,9 +56,24 @@
     </tr>
     <tr>
       <td>
+        <code>NOMAD_CPU_CORES</code>
+      </td>
+      <td>
+        The specific CPU cores reserved for the task in cpuset list notation.
+        Omitted if the the task does not request cpu cores. E.g. <code>0-2,7,12-14</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
         <code>NOMAD_ALLOC_ID</code>
       </td>
       <td>Allocation ID of the task</td>
+    </tr>
+    <tr>
+      <td>
+        <code>NOMAD_SHORT_ALLOC_ID</code>
+      </td>
+      <td>The first 8 characters of the allocation ID of the task</td>
     </tr>
     <tr>
       <td>
@@ -117,6 +132,12 @@
     </tr>
     <tr>
       <td>
+        <code>NOMAD_PARENT_CGROUP</code>
+      </td>
+      <td>The parent cgroup used to contain task cgroups (Linux only)</td>
+    </tr>
+    <tr>
+      <td>
         <code>NOMAD_NAMESPACE</code>
       </td>
       <td>Namespace in which the allocation is running</td>
@@ -151,7 +172,7 @@
       </td>
     </tr>
     <tr>
-      <th colspan="2">Network-related Variables</th>
+      <th colSpan="2">Network-related Variables</th>
     </tr>
     <tr>
       <td>
@@ -196,8 +217,9 @@
         <code>NOMAD_IP_&lt;task&gt;_&lt;label&gt;</code>
       </td>
       <td>
-        Host IP for the given port <code>label</code> and <code>task</code> for
-        tasks in the same task group.
+        <b>Deprecated</b>. Host IP for the given port <code>label</code>
+        and <code>task</code> for tasks in the same task group. Only available
+        when setting ports via the task resource network port mapping.
       </td>
     </tr>
     <tr>
@@ -205,10 +227,11 @@
         <code>NOMAD_PORT_&lt;task&gt;_&lt;label&gt;</code>
       </td>
       <td>
-        Port for the given port <code>label</code> and <code>task</code> for
-        tasks in the same task group. Driver-specified port when a port map is
-        used, otherwise the host's static or dynamic port allocation.
-        Services should bind to this port.
+        <b>Deprecated</b>. Port for the given port <code>label</code> and
+        <code>task</code> for tasks in the same task group. Driver-specified port
+        when a port map is used, otherwise the host's static or dynamic port
+        allocation. Services should bind to this port. Only available when setting
+        ports via the task resource network port mapping.
       </td>
     </tr>
     <tr>
@@ -216,8 +239,10 @@
         <code>NOMAD_ADDR_&lt;task&gt;_&lt;label&gt;</code>
       </td>
       <td>
-        Host <code>IP:Port</code> pair for the given port <code>label</code> and
-        <code>task</code> for tasks in the same task group.
+        <b>Deprecated</b>. Host <code>IP:Port</code> pair for the given port
+        <code>label</code> and <code>task</code> for tasks in the same task group.
+        Only available when setting ports via the task resource network port
+        mapping.
       </td>
     </tr>
     <tr>
@@ -225,8 +250,9 @@
         <code>NOMAD_HOST_PORT_&lt;task&gt;_&lt;label&gt;</code>
       </td>
       <td>
-        Port on the host for the port <code>label</code> and <code>task</code>
-        for tasks in the same task group.
+        <b>Deprecated</b>. Port on the host for the port <code>label</code> and
+        <code>task</code> for tasks in the same task group. Only available when
+        setting ports via the task resource network port mapping.
       </td>
     </tr>
     <tr>
@@ -280,7 +306,7 @@
         </td>
       </tr>
     <tr>
-      <th colspan="2">Consul-related Variables (only set for connect native tasks)</th>
+      <th colSpan="2">Consul-related Variables (only set for connect native tasks)</th>
     </tr>
     <tr>
       <td>

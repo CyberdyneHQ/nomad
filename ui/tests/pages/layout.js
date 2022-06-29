@@ -6,6 +6,7 @@ import {
   hasClass,
   isHidden,
   isPresent,
+  property,
   text,
 } from 'ember-cli-page-object';
 
@@ -46,6 +47,22 @@ export default create({
         resetScope: true,
       },
     },
+
+    end: {
+      scope: '.navbar-end',
+
+      consulLink: {
+        scope: '[data-test-header-consul-link]',
+        text: text(),
+        link: property('href'),
+      },
+
+      vaultLink: {
+        scope: '[data-test-header-vault-link]',
+        text: text(),
+        link: property('href'),
+      },
+    },
   },
 
   gutter: {
@@ -68,7 +85,7 @@ export default create({
   }),
 
   breadcrumbFor(id) {
-    return this.breadcrumbs.toArray().find(crumb => crumb.id === id);
+    return this.breadcrumbs.toArray().find((crumb) => crumb.id === id);
   },
 
   error: {

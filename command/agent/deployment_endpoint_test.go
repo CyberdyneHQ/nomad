@@ -5,13 +5,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/hashicorp/nomad/ci"
 	"github.com/hashicorp/nomad/nomad/mock"
 	"github.com/hashicorp/nomad/nomad/structs"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHTTP_DeploymentList(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	assert := assert.New(t)
 	httpTest(t, nil, func(s *TestAgent) {
 		// Directly manipulate the state
@@ -31,9 +32,9 @@ func TestHTTP_DeploymentList(t *testing.T) {
 		assert.Nil(err, "Deployment Request")
 
 		// Check for the index
-		assert.NotZero(respW.HeaderMap.Get("X-Nomad-Index"), "missing index")
-		assert.Equal("true", respW.HeaderMap.Get("X-Nomad-KnownLeader"), "missing known leader")
-		assert.NotZero(respW.HeaderMap.Get("X-Nomad-LastContact"), "missing last contact")
+		assert.NotZero(respW.Result().Header.Get("X-Nomad-Index"), "missing index")
+		assert.Equal("true", respW.Result().Header.Get("X-Nomad-KnownLeader"), "missing known leader")
+		assert.NotZero(respW.Result().Header.Get("X-Nomad-LastContact"), "missing last contact")
 
 		// Check the deployments
 		deploys := obj.([]*structs.Deployment)
@@ -42,7 +43,7 @@ func TestHTTP_DeploymentList(t *testing.T) {
 }
 
 func TestHTTP_DeploymentPrefixList(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	assert := assert.New(t)
 	httpTest(t, nil, func(s *TestAgent) {
 		// Directly manipulate the state
@@ -64,9 +65,9 @@ func TestHTTP_DeploymentPrefixList(t *testing.T) {
 		assert.Nil(err, "Deployment Request")
 
 		// Check for the index
-		assert.NotZero(respW.HeaderMap.Get("X-Nomad-Index"), "missing index")
-		assert.Equal("true", respW.HeaderMap.Get("X-Nomad-KnownLeader"), "missing known leader")
-		assert.NotZero(respW.HeaderMap.Get("X-Nomad-LastContact"), "missing last contact")
+		assert.NotZero(respW.Result().Header.Get("X-Nomad-Index"), "missing index")
+		assert.Equal("true", respW.Result().Header.Get("X-Nomad-KnownLeader"), "missing known leader")
+		assert.NotZero(respW.Result().Header.Get("X-Nomad-LastContact"), "missing last contact")
 
 		// Check the deployments
 		deploys := obj.([]*structs.Deployment)
@@ -76,7 +77,7 @@ func TestHTTP_DeploymentPrefixList(t *testing.T) {
 }
 
 func TestHTTP_DeploymentAllocations(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	assert := assert.New(t)
 	httpTest(t, nil, func(s *TestAgent) {
 		// Directly manipulate the state
@@ -121,9 +122,9 @@ func TestHTTP_DeploymentAllocations(t *testing.T) {
 		assert.Nil(err, "DeploymentSpecificRequest")
 
 		// Check for the index
-		assert.NotZero(respW.HeaderMap.Get("X-Nomad-Index"), "missing index")
-		assert.Equal("true", respW.HeaderMap.Get("X-Nomad-KnownLeader"), "missing known leader")
-		assert.NotZero(respW.HeaderMap.Get("X-Nomad-LastContact"), "missing last contact")
+		assert.NotZero(respW.Result().Header.Get("X-Nomad-Index"), "missing index")
+		assert.Equal("true", respW.Result().Header.Get("X-Nomad-KnownLeader"), "missing known leader")
+		assert.NotZero(respW.Result().Header.Get("X-Nomad-LastContact"), "missing last contact")
 
 		// Check the output
 		allocs := obj.([]*structs.AllocListStub)
@@ -137,7 +138,7 @@ func TestHTTP_DeploymentAllocations(t *testing.T) {
 }
 
 func TestHTTP_DeploymentQuery(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	assert := assert.New(t)
 	httpTest(t, nil, func(s *TestAgent) {
 		// Directly manipulate the state
@@ -155,9 +156,9 @@ func TestHTTP_DeploymentQuery(t *testing.T) {
 		assert.Nil(err, "Deployment Request")
 
 		// Check for the index
-		assert.NotZero(respW.HeaderMap.Get("X-Nomad-Index"), "missing index")
-		assert.Equal("true", respW.HeaderMap.Get("X-Nomad-KnownLeader"), "missing known leader")
-		assert.NotZero(respW.HeaderMap.Get("X-Nomad-LastContact"), "missing last contact")
+		assert.NotZero(respW.Result().Header.Get("X-Nomad-Index"), "missing index")
+		assert.Equal("true", respW.Result().Header.Get("X-Nomad-KnownLeader"), "missing known leader")
+		assert.NotZero(respW.Result().Header.Get("X-Nomad-LastContact"), "missing last contact")
 
 		// Check the job
 		out := obj.(*structs.Deployment)
@@ -166,7 +167,7 @@ func TestHTTP_DeploymentQuery(t *testing.T) {
 }
 
 func TestHTTP_DeploymentPause(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	assert := assert.New(t)
 	httpTest(t, nil, func(s *TestAgent) {
 		// Directly manipulate the state
@@ -202,12 +203,12 @@ func TestHTTP_DeploymentPause(t *testing.T) {
 		assert.NotZero(resp.EvalID, "Expect Eval")
 		assert.NotZero(resp.EvalCreateIndex, "Expect Eval")
 		assert.NotZero(resp.DeploymentModifyIndex, "Expect Deployment to be Modified")
-		assert.NotZero(respW.HeaderMap.Get("X-Nomad-Index"), "missing index")
+		assert.NotZero(respW.Result().Header.Get("X-Nomad-Index"), "missing index")
 	})
 }
 
 func TestHTTP_DeploymentPromote(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	assert := assert.New(t)
 	httpTest(t, nil, func(s *TestAgent) {
 		// Directly manipulate the state
@@ -243,12 +244,12 @@ func TestHTTP_DeploymentPromote(t *testing.T) {
 		assert.NotZero(resp.EvalID, "Expect Eval")
 		assert.NotZero(resp.EvalCreateIndex, "Expect Eval")
 		assert.NotZero(resp.DeploymentModifyIndex, "Expect Deployment to be Modified")
-		assert.NotZero(respW.HeaderMap.Get("X-Nomad-Index"), "missing index")
+		assert.NotZero(respW.Result().Header.Get("X-Nomad-Index"), "missing index")
 	})
 }
 
 func TestHTTP_DeploymentAllocHealth(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	assert := assert.New(t)
 	httpTest(t, nil, func(s *TestAgent) {
 		// Directly manipulate the state
@@ -288,12 +289,12 @@ func TestHTTP_DeploymentAllocHealth(t *testing.T) {
 		assert.NotZero(resp.EvalID, "Expect Eval")
 		assert.NotZero(resp.EvalCreateIndex, "Expect Eval")
 		assert.NotZero(resp.DeploymentModifyIndex, "Expect Deployment to be Modified")
-		assert.NotZero(respW.HeaderMap.Get("X-Nomad-Index"), "missing index")
+		assert.NotZero(respW.Result().Header.Get("X-Nomad-Index"), "missing index")
 	})
 }
 
 func TestHTTP_DeploymentFail(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 	assert := assert.New(t)
 	httpTest(t, nil, func(s *TestAgent) {
 		// Directly manipulate the state
@@ -318,6 +319,6 @@ func TestHTTP_DeploymentFail(t *testing.T) {
 		assert.NotZero(resp.EvalID, "Expect Eval")
 		assert.NotZero(resp.EvalCreateIndex, "Expect Eval")
 		assert.NotZero(resp.DeploymentModifyIndex, "Expect Deployment to be Modified")
-		assert.NotZero(respW.HeaderMap.Get("X-Nomad-Index"), "missing index")
+		assert.NotZero(respW.Result().Header.Get("X-Nomad-Index"), "missing index")
 	})
 }

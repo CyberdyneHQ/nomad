@@ -25,6 +25,8 @@ import (
 	cinterfaces "github.com/hashicorp/nomad/client/interfaces"
 	"github.com/hashicorp/nomad/client/pluginmanager/csimanager"
 	"github.com/hashicorp/nomad/client/pluginmanager/drivermanager"
+	"github.com/hashicorp/nomad/client/serviceregistration"
+	"github.com/hashicorp/nomad/client/serviceregistration/wrapper"
 	cstate "github.com/hashicorp/nomad/client/state"
 	cstructs "github.com/hashicorp/nomad/client/structs"
 	"github.com/hashicorp/nomad/client/taskenv"
@@ -112,6 +114,11 @@ type TaskRunner struct {
 	killErr     error
 	killErrLock sync.Mutex
 
+	// shutdownDelayCtx is a context from the alloc runner which will
+	// tell us to exit early from shutdown_delay
+	shutdownDelayCtx      context.Context
+	shutdownDelayCancelFn context.CancelFunc
+
 	// Logger is the logger for the task runner.
 	logger log.Logger
 
@@ -161,7 +168,7 @@ type TaskRunner struct {
 
 	// consulClient is the client used by the consul service hook for
 	// registering services and checks
-	consulServiceClient consul.ConsulServiceAPI
+	consulServiceClient serviceregistration.Handler
 
 	// consulProxiesClient is the client used by the envoy version hook for
 	// asking consul what version of envoy nomad should inject into the connect
@@ -233,6 +240,13 @@ type TaskRunner struct {
 	networkIsolationSpec *drivers.NetworkIsolationSpec
 
 	allocHookResources *cstructs.AllocHookResources
+
+	// serviceRegWrapper is the handler wrapper that is used by service hooks
+	// to perform service and check registration and deregistration.
+	serviceRegWrapper *wrapper.HandlerWrapper
+
+	// getter is an interface for retrieving artifacts.
+	getter cinterfaces.ArtifactGetter
 }
 
 type Config struct {
@@ -243,7 +257,7 @@ type Config struct {
 	Logger       log.Logger
 
 	// Consul is the client to use for managing Consul service registrations
-	Consul consul.ConsulServiceAPI
+	Consul serviceregistration.Handler
 
 	// ConsulProxies is the client to use for looking up supported envoy versions
 	// from Consul.
@@ -287,6 +301,20 @@ type Config struct {
 
 	// startConditionMetCtx is done when TR should start the task
 	StartConditionMetCtx <-chan struct{}
+
+	// ShutdownDelayCtx is a context from the alloc runner which will
+	// tell us to exit early from shutdown_delay
+	ShutdownDelayCtx context.Context
+
+	// ShutdownDelayCancelFn should only be used in testing.
+	ShutdownDelayCancelFn context.CancelFunc
+
+	// ServiceRegWrapper is the handler wrapper that is used by service hooks
+	// to perform service and check registration and deregistration.
+	ServiceRegWrapper *wrapper.HandlerWrapper
+
+	// Getter is an interface for retrieving artifacts.
+	Getter cinterfaces.ArtifactGetter
 }
 
 func NewTaskRunner(config *Config) (*TaskRunner, error) {
@@ -342,6 +370,10 @@ func NewTaskRunner(config *Config) (*TaskRunner, error) {
 		maxEvents:              defaultMaxEvents,
 		serversContactedCh:     config.ServersContactedCh,
 		startConditionMetCtx:   config.StartConditionMetCtx,
+		shutdownDelayCtx:       config.ShutdownDelayCtx,
+		shutdownDelayCancelFn:  config.ShutdownDelayCancelFn,
+		serviceRegWrapper:      config.ServiceRegWrapper,
+		getter:                 config.Getter,
 	}
 
 	// Create the logger based on the allocation ID
@@ -513,6 +545,9 @@ func (tr *TaskRunner) Run() {
 		return
 	}
 
+	timer, stop := helper.NewSafeTimer(0) // timer duration calculated JIT
+	defer stop()
+
 MAIN:
 	for !tr.shouldShutdown() {
 		select {
@@ -598,9 +633,11 @@ MAIN:
 			break MAIN
 		}
 
+		timer.Reset(restartDelay)
+
 		// Actually restart by sleeping and also watching for destroy events
 		select {
-		case <-time.After(restartDelay):
+		case <-timer.C:
 		case <-tr.killCtx.Done():
 			tr.logger.Trace("task killed between restarts", "delay", restartDelay)
 			break MAIN
@@ -753,6 +790,7 @@ func (tr *TaskRunner) runDriver() error {
 
 	taskConfig := tr.buildTaskConfig()
 	if tr.cpusetCgroupPathGetter != nil {
+		tr.logger.Trace("waiting for cgroup to exist for", "allocID", tr.allocID, "task", tr.task)
 		cpusetCgroupPath, err := tr.cpusetCgroupPathGetter(tr.killCtx)
 		if err != nil {
 			return err
@@ -895,6 +933,8 @@ func (tr *TaskRunner) handleKill(resultCh <-chan *drivers.ExitResult) *drivers.E
 		select {
 		case result := <-resultCh:
 			return result
+		case <-tr.shutdownDelayCtx.Done():
+			break
 		case <-time.After(delay):
 		}
 	}
@@ -1009,10 +1049,11 @@ func (tr *TaskRunner) buildTaskConfig() *drivers.TaskConfig {
 	if alloc.AllocatedResources != nil && len(alloc.AllocatedResources.Shared.Networks) > 0 {
 		allocDNS := alloc.AllocatedResources.Shared.Networks[0].DNS
 		if allocDNS != nil {
+			interpolatedNetworks := taskenv.InterpolateNetworks(env, alloc.AllocatedResources.Shared.Networks)
 			dns = &drivers.DNSConfig{
-				Servers:  allocDNS.Servers,
-				Searches: allocDNS.Searches,
-				Options:  allocDNS.Options,
+				Servers:  interpolatedNetworks[0].DNS.Servers,
+				Searches: interpolatedNetworks[0].DNS.Searches,
+				Options:  interpolatedNetworks[0].DNS.Options,
 			}
 		}
 	}
@@ -1388,6 +1429,7 @@ func (tr *TaskRunner) setGaugeForMemory(ru *cstructs.TaskResourceUsage) {
 	publishMetric(ms.RSS, "rss", "RSS")
 	publishMetric(ms.Cache, "cache", "Cache")
 	publishMetric(ms.Swap, "swap", "Swap")
+	publishMetric(ms.MappedFile, "mapped_file", "Mapped File")
 	publishMetric(ms.Usage, "usage", "Usage")
 	publishMetric(ms.MaxUsage, "max_usage", "Max Usage")
 	publishMetric(ms.KernelUsage, "kernel_usage", "Kernel Usage")
@@ -1477,4 +1519,10 @@ func (tr *TaskRunner) DriverCapabilities() (*drivers.Capabilities, error) {
 
 func (tr *TaskRunner) SetAllocHookResources(res *cstructs.AllocHookResources) {
 	tr.allocHookResources = res
+}
+
+// shutdownDelayCancel is used for testing only and cancels the
+// shutdownDelayCtx
+func (tr *TaskRunner) shutdownDelayCancel() {
+	tr.shutdownDelayCancelFn()
 }

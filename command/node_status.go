@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"math"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -28,11 +29,16 @@ type NodeStatusCommand struct {
 	Meta
 	length      int
 	short       bool
+	os          bool
+	quiet       bool
 	verbose     bool
 	list_allocs bool
 	self        bool
 	stats       bool
 	json        bool
+	perPage     int
+	pageToken   string
+	filter      string
 	tmpl        string
 }
 
@@ -74,6 +80,21 @@ Node Status Options:
   -verbose
     Display full information.
 
+  -per-page
+    How many results to show per page.
+
+  -page-token
+    Where to start pagination.
+
+  -filter
+    Specifies an expression used to filter query results.
+
+  -os
+    Display operating system name.
+
+  -quiet
+    Display only node IDs.
+
   -json
     Output the node in its JSON format.
 
@@ -90,13 +111,18 @@ func (c *NodeStatusCommand) Synopsis() string {
 func (c *NodeStatusCommand) AutocompleteFlags() complete.Flags {
 	return mergeAutocompleteFlags(c.Meta.AutocompleteFlags(FlagSetClient),
 		complete.Flags{
-			"-allocs":  complete.PredictNothing,
-			"-json":    complete.PredictNothing,
-			"-self":    complete.PredictNothing,
-			"-short":   complete.PredictNothing,
-			"-stats":   complete.PredictNothing,
-			"-t":       complete.PredictAnything,
-			"-verbose": complete.PredictNothing,
+			"-allocs":     complete.PredictNothing,
+			"-filter":     complete.PredictAnything,
+			"-json":       complete.PredictNothing,
+			"-per-page":   complete.PredictAnything,
+			"-page-token": complete.PredictAnything,
+			"-self":       complete.PredictNothing,
+			"-short":      complete.PredictNothing,
+			"-stats":      complete.PredictNothing,
+			"-t":          complete.PredictAnything,
+			"-os":         complete.PredictAnything,
+			"-quiet":      complete.PredictAnything,
+			"-verbose":    complete.PredictNothing,
 		})
 }
 
@@ -122,12 +148,17 @@ func (c *NodeStatusCommand) Run(args []string) int {
 	flags := c.Meta.FlagSet(c.Name(), FlagSetClient)
 	flags.Usage = func() { c.Ui.Output(c.Help()) }
 	flags.BoolVar(&c.short, "short", false, "")
+	flags.BoolVar(&c.os, "os", false, "")
+	flags.BoolVar(&c.quiet, "quiet", false, "")
 	flags.BoolVar(&c.verbose, "verbose", false, "")
 	flags.BoolVar(&c.list_allocs, "allocs", false, "")
 	flags.BoolVar(&c.self, "self", false, "")
 	flags.BoolVar(&c.stats, "stats", false, "")
 	flags.BoolVar(&c.json, "json", false, "")
 	flags.StringVar(&c.tmpl, "t", "", "")
+	flags.StringVar(&c.filter, "filter", "", "")
+	flags.IntVar(&c.perPage, "per-page", 0, "")
+	flags.StringVar(&c.pageToken, "page-token", "", "")
 
 	if err := flags.Parse(args); err != nil {
 		return 1
@@ -156,9 +187,27 @@ func (c *NodeStatusCommand) Run(args []string) int {
 
 	// Use list mode if no node name was provided
 	if len(args) == 0 && !c.self {
+		if c.quiet && (c.verbose || c.json) {
+			c.Ui.Error("-quiet cannot be used with -verbose or -json")
+			return 1
+		}
+
+		// Set up the options to capture any filter passed and pagination
+		// details.
+		opts := api.QueryOptions{
+			Filter:    c.filter,
+			PerPage:   int32(c.perPage),
+			NextToken: c.pageToken,
+		}
+
+		// If the user requested showing the node OS, include this within the
+		// query params.
+		if c.os {
+			opts.Params = map[string]string{"os": "true"}
+		}
 
 		// Query the node info
-		nodes, _, err := client.Nodes().List(nil)
+		nodes, qm, err := client.Nodes().List(&opts)
 		if err != nil {
 			c.Ui.Error(fmt.Sprintf("Error querying node status: %s", err))
 			return 1
@@ -181,10 +230,29 @@ func (c *NodeStatusCommand) Run(args []string) int {
 			return 0
 		}
 
+		var size int
+		if c.quiet {
+			size = len(nodes)
+		} else {
+			size = len(nodes) + 1
+		}
+
 		// Format the nodes list
-		out := make([]string, len(nodes)+1)
+		out := make([]string, size)
+
+		if c.quiet {
+			for i, node := range nodes {
+				out[i] = node.ID
+			}
+			c.Ui.Output(formatList(out))
+			return 0
+		}
 
 		out[0] = "ID|DC|Name|Class|"
+
+		if c.os {
+			out[0] += "OS|"
+		}
 
 		if c.verbose {
 			out[0] += "Address|Version|"
@@ -202,6 +270,9 @@ func (c *NodeStatusCommand) Run(args []string) int {
 				node.Datacenter,
 				node.Name,
 				node.NodeClass)
+			if c.os {
+				out[i+1] += fmt.Sprintf("|%s", node.Attributes["os.name"])
+			}
 			if c.verbose {
 				out[i+1] += fmt.Sprintf("|%s|%s",
 					node.Address, node.Version)
@@ -224,6 +295,14 @@ func (c *NodeStatusCommand) Run(args []string) int {
 
 		// Dump the output
 		c.Ui.Output(formatList(out))
+
+		if qm.NextToken != "" {
+			c.Ui.Output(fmt.Sprintf(`
+Results have been paginated. To get the next page run:
+
+%s -page-token %s`, argsWithoutPageToken(os.Args), qm.NextToken))
+		}
+
 		return 0
 	}
 
@@ -349,6 +428,16 @@ func nodeVolumeNames(n *api.Node) []string {
 	return volumes
 }
 
+func nodeNetworkNames(n *api.Node) []string {
+	var networks []string
+	for name := range n.HostNetworks {
+		networks = append(networks, name)
+	}
+
+	sort.Strings(networks)
+	return networks
+}
+
 func formatDrain(n *api.Node) string {
 	if n.DrainStrategy != nil {
 		b := new(strings.Builder)
@@ -400,6 +489,7 @@ func (c *NodeStatusCommand) formatNode(client *api.Client, node *api.Node) int {
 
 	if c.short {
 		basic = append(basic, fmt.Sprintf("Host Volumes|%s", strings.Join(nodeVolumeNames(node), ",")))
+		basic = append(basic, fmt.Sprintf("Host Networks|%s", strings.Join(nodeNetworkNames(node), ",")))
 		basic = append(basic, fmt.Sprintf("CSI Volumes|%s", strings.Join(nodeCSIVolumeNames(node, runningAllocs), ",")))
 		basic = append(basic, fmt.Sprintf("Drivers|%s", strings.Join(nodeDrivers(node), ",")))
 		c.Ui.Output(c.Colorize().Color(formatKV(basic)))
@@ -428,6 +518,7 @@ func (c *NodeStatusCommand) formatNode(client *api.Client, node *api.Node) int {
 	// driver info in the basic output
 	if !c.verbose {
 		basic = append(basic, fmt.Sprintf("Host Volumes|%s", strings.Join(nodeVolumeNames(node), ",")))
+		basic = append(basic, fmt.Sprintf("Host Networks|%s", strings.Join(nodeNetworkNames(node), ",")))
 		basic = append(basic, fmt.Sprintf("CSI Volumes|%s", strings.Join(nodeCSIVolumeNames(node, runningAllocs), ",")))
 		driverStatus := fmt.Sprintf("Driver Status| %s", c.outputTruncatedNodeDriverInfo(node))
 		basic = append(basic, driverStatus)
@@ -439,6 +530,7 @@ func (c *NodeStatusCommand) formatNode(client *api.Client, node *api.Node) int {
 	// If we're running in verbose mode, include full host volume and driver info
 	if c.verbose {
 		c.outputNodeVolumeInfo(node)
+		c.outputNodeNetworkInfo(node)
 		c.outputNodeCSIVolumeInfo(client, node, runningAllocs)
 		c.outputNodeDriverInfo(node)
 	}
@@ -539,6 +631,27 @@ func (c *NodeStatusCommand) outputNodeVolumeInfo(node *api.Node) {
 		for _, volName := range names {
 			info := node.HostVolumes[volName]
 			output = append(output, fmt.Sprintf("%s|%v|%s", volName, info.ReadOnly, info.Path))
+		}
+		c.Ui.Output(formatList(output))
+	}
+}
+
+func (c *NodeStatusCommand) outputNodeNetworkInfo(node *api.Node) {
+
+	names := make([]string, 0, len(node.HostNetworks))
+	for name := range node.HostNetworks {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+
+	output := make([]string, 0, len(names)+1)
+	output = append(output, "Name|CIDR|Interface|ReservedPorts")
+
+	if len(names) > 0 {
+		c.Ui.Output(c.Colorize().Color("\n[bold]Host Networks"))
+		for _, hostNetworkName := range names {
+			info := node.HostNetworks[hostNetworkName]
+			output = append(output, fmt.Sprintf("%s|%v|%s|%s", hostNetworkName, info.CIDR, info.Interface, info.ReservedPorts))
 		}
 		c.Ui.Output(formatList(output))
 	}

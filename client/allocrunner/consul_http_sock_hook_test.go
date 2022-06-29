@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/hashicorp/nomad/ci"
 	"github.com/hashicorp/nomad/client/allocdir"
 	"github.com/hashicorp/nomad/helper/testlog"
 	"github.com/hashicorp/nomad/nomad/mock"
@@ -14,7 +15,7 @@ import (
 )
 
 func TestConsulSocketHook_PrerunPostrun_Ok(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 
 	fakeConsul, err := net.Listen("tcp", "127.0.0.1:0")
 	require.NoError(t, err)
@@ -28,7 +29,7 @@ func TestConsulSocketHook_PrerunPostrun_Ok(t *testing.T) {
 
 	logger := testlog.HCLogger(t)
 
-	allocDir, cleanupDir := allocdir.TestAllocDir(t, logger, "ConnectNativeTask")
+	allocDir, cleanupDir := allocdir.TestAllocDir(t, logger, "ConnectNativeTask", alloc.ID)
 	defer cleanupDir()
 
 	// start unix socket proxy
@@ -89,17 +90,17 @@ func TestConsulSocketHook_PrerunPostrun_Ok(t *testing.T) {
 }
 
 func TestConsulHTTPSocketHook_Prerun_Error(t *testing.T) {
-	t.Parallel()
+	ci.Parallel(t)
 
 	logger := testlog.HCLogger(t)
-
-	allocDir, cleanupDir := allocdir.TestAllocDir(t, logger, "ConnectNativeTask")
-	defer cleanupDir()
 
 	consulConfig := new(config.ConsulConfig)
 
 	alloc := mock.Alloc()
 	connectNativeAlloc := mock.ConnectNativeAlloc("bridge")
+
+	allocDir, cleanupDir := allocdir.TestAllocDir(t, logger, "ConnectNativeTask", alloc.ID)
+	defer cleanupDir()
 
 	{
 		// an alloc without a connect native task should not return an error

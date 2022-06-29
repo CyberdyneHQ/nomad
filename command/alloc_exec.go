@@ -11,10 +11,10 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/docker/docker/pkg/term"
 	"github.com/hashicorp/nomad/api"
 	"github.com/hashicorp/nomad/api/contexts"
 	"github.com/hashicorp/nomad/helper/escapingio"
+	"github.com/moby/term"
 	"github.com/posener/complete"
 )
 
@@ -70,8 +70,8 @@ func (l *AllocExecCommand) Synopsis() string {
 	return "Execute commands in task"
 }
 
-func (c *AllocExecCommand) AutocompleteFlags() complete.Flags {
-	return mergeAutocompleteFlags(c.Meta.AutocompleteFlags(FlagSetClient),
+func (l *AllocExecCommand) AutocompleteFlags() complete.Flags {
+	return mergeAutocompleteFlags(l.Meta.AutocompleteFlags(FlagSetClient),
 		complete.Flags{
 			"--task": complete.PredictAnything,
 			"-job":   complete.PredictAnything,
