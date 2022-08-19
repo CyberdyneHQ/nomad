@@ -16,7 +16,7 @@ export default ApplicationSerializer.extend({
 });
 
 function serializeJob(job) {
-  job.TaskGroups.forEach(group => {
+  job.TaskGroups.forEach((group) => {
     if (group.Services.length === 0) {
       group.Services = null;
     }
