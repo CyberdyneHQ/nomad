@@ -59,8 +59,8 @@ export function generateNetworks(options = {}) {
       Mode: faker.helpers.randomize(NETWORK_MODES),
       ReservedPorts: Array(
         faker.random.number({
-          min: options.minPorts != null ? options.minPorts : 0,
-          max: options.maxPorts != null ? options.maxPorts : 2,
+          min: options.minPorts !== null ? options.minPorts : 0,
+          max: options.maxPorts !== null ? options.maxPorts : 2,
         })
       )
         .fill(null)
@@ -71,8 +71,8 @@ export function generateNetworks(options = {}) {
         })),
       DynamicPorts: Array(
         faker.random.number({
-          min: options.minPorts != null ? options.minPorts : 0,
-          max: options.maxPorts != null ? options.maxPorts : 2,
+          min: options.minPorts !== null ? options.minPorts : 0,
+          max: options.maxPorts !== null ? options.maxPorts : 2,
         })
       )
         .fill(null)
@@ -87,8 +87,8 @@ export function generateNetworks(options = {}) {
 export function generatePorts(options = {}) {
   return Array(
     faker.random.number({
-      min: options.minPorts != null ? options.minPorts : 0,
-      max: options.maxPorts != null ? options.maxPorts : 2,
+      min: options.minPorts !== null ? options.minPorts : 0,
+      max: options.maxPorts !== null ? options.maxPorts : 2,
     })
   )
     .fill(null)

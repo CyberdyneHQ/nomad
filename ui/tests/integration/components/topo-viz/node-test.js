@@ -22,7 +22,7 @@ const nodeGen = (name, datacenter, memory, cpu, flags = {}) => ({
   isSelected: !!flags.isSelected,
   node: {
     name,
-    isEligible: flags.isEligible || flags.isEligible == null,
+    isEligible: flags.isEligible || flags.isEligible === null,
     isDraining: !!flags.isDraining,
   },
 });

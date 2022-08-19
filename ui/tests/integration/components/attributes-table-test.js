@@ -97,6 +97,6 @@ module('Integration | Component | attributes table', function (hooks) {
   }
 
   function isObject(value) {
-    return !Array.isArray(value) && value != null && typeof value === 'object';
+    return !Array.isArray(value) && value !== null && typeof value === 'object';
   }
 });

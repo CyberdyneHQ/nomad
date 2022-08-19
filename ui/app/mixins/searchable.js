@@ -45,7 +45,7 @@ export default Mixin.create({
   // preferable to generalize this rather than risking it being
   // forgotten on a single page.
   resetPagination() {
-    if (this.currentPage != null) {
+    if (this.currentPage !== null) {
       this.set('currentPage', 1);
     }
   },
