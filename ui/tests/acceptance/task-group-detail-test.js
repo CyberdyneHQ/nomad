@@ -621,7 +621,7 @@ module('Acceptance | task group detail', function (hooks) {
       );
       assert.equal(ScaleEvent.message, scaleEvent.message);
 
-      if (scaleEvent.count != null) {
+      if (scaleEvent.count !== null) {
         assert.equal(ScaleEvent.count, scaleEvent.count);
       }
 
@@ -662,7 +662,7 @@ module('Acceptance | task group detail', function (hooks) {
 
     assert.equal(
       TaskGroup.scalingAnnotations.length,
-      scaleEvents.filter((ev) => ev.count == null).length
+      scaleEvents.filter((ev) => ev.count === null).length
     );
   });
 

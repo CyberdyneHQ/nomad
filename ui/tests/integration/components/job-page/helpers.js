@@ -30,7 +30,7 @@ export function expectStartRequest(assert, server, job) {
 
   assert.ok(request, 'POST URL was made correctly');
   assert.ok(
-    requestPayload.Stop == null,
+    requestPayload.Stop === null,
     'The Stop signal is not sent in the POST request'
   );
 }
