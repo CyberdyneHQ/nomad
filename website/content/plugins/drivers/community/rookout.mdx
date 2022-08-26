@@ -1,6 +1,6 @@
 ---
 layout: docs
-page_title: 'Drivers: Rookout'
+page_title: "Drivers: Rookout"
 description: The Rookout driver is used to run your Java app with Rookout.
 ---
 
@@ -34,6 +34,7 @@ The `java-rookout` driver accepts all configuration options of the [`java`](http
 Set the `rookout_token` config key to your Rookout token, or define it as a variable and pass it as a parameter.
 
 For example:
+
 ```hcl
 task "run-with-rookout" {
   driver = "java-rookout"
@@ -45,6 +46,7 @@ task "run-with-rookout" {
 ```
 
 Additional Rookout configuration can be passed as environment variables like so:
+
 ```hcl
 env {
     ROOKOUT_REMOTE_ORIGIN="https://github.com/Rookout/tutorial-java"

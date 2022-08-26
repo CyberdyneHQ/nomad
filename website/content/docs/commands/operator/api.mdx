@@ -1,6 +1,6 @@
 ---
 layout: docs
-page_title: 'Commands: operator api'
+page_title: "Commands: operator api"
 description: |
   operator api is a utility command for accessing Nomad's HTTP API similar to
   the popular open source program curl.
@@ -24,8 +24,7 @@ NOMAD_TLS_SERVER_NAME=client.global.nomad
 NOMAD_ADDR=https://remote.client123.internal:4646
 ```
 
-Accessing Nomad's [`/v1/jobs`][jobs] HTTP endpoint with `nomad operator
-api` would require:
+Accessing Nomad's [`/v1/jobs`][jobs] HTTP endpoint with `nomad operator api` would require:
 
 ```
 nomad operator api /v1/jobs
@@ -50,7 +49,7 @@ curl \
 ## Operator API Options
 
 - `-dryrun`: output a curl command instead of performing the HTTP request
-  immediately. Note that you do *not* need the 3rd party `curl` command
+  immediately. Note that you do _not_ need the 3rd party `curl` command
   installed to use `operator api`. The `curl` output from `-dryrun` is intended
   for use in scripts or running in locations without a Nomad binary present.
 
@@ -86,9 +85,6 @@ curl \
   -X GET \
     http://127.0.0.1:4646/v1/evaluations?filter=.Status+%3D%3D+%22completed%22&region=eu-west
 ```
-
-
-
 
 [curl]: https://curl.se/
 [envvars]: /docs/commands#environment-variables
