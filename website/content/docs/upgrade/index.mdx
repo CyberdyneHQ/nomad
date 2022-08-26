@@ -1,7 +1,7 @@
 ---
 layout: docs
-page_title: 'Upgrading'
-sidebar_current: 'guides-upgrade'
+page_title: "Upgrading"
+sidebar_current: "guides-upgrade"
 description: |-
   Learn how to upgrade Nomad.
 ---
@@ -192,14 +192,14 @@ For in-place raft protocol upgrades, perform the following for each
 server, leaving the leader until last to reduce the chance of leader
 elections that will slow down the process:
 
-* Stop the server.
-* Run `nomad server force-leave $server_name`.
-* If the upgrade is for a Nomad version lower than v1.3.0, update the
+- Stop the server.
+- Run `nomad server force-leave $server_name`.
+- If the upgrade is for a Nomad version lower than v1.3.0, update the
   [`raft_protocol`] in the server's configuration file to `3`.
-* Restart the server.
-* Run `nomad operator raft list-peers` to verify that the
+- Restart the server.
+- Run `nomad operator raft list-peers` to verify that the
   `RaftProtocol` for the server is now `3`.
-* On the server, run `nomad agent-info` and check that the
+- On the server, run `nomad agent-info` and check that the
   `last_log_index` is of a similar value to the other servers. This
   step ensures that raft is healthy and changes are replicating to the
   new server.

@@ -22,21 +22,21 @@ Below are some examples of how to generate a CHANGELOG entry with your pull requ
 
 ### Improvement
 
-~~~
+````
 ```release-note:improvement
 internal/server: Add new option for configs
 ```
-~~~
+````
 
 ### Feature
 
 Significant major release features. Typically included in release blog announcement and keynotes.
 
-~~~
+````
 ```release-note:feature
 **Consul namespace support (Enterprise)**: Run Nomad-defined services in their HashiCorp Consul namespaces more easily using Nomad Enterpris
 ```
-~~~
+````
 
 ### Improvements
 
@@ -48,17 +48,17 @@ cli: Added `-monitor` flag to `deployment status` command and automatically moni
 
 ### Bug
 
-~~~
+````
 ```release-note:bug
 client/fingerprint/java: Fixed a bug where java fingerprinter would not detect some Java distributions
 ```
-~~~
+````
 
 ### Multiple Entries
 
 If a PR has multiple entries,
 
-~~~
+````
 ```release-note:bug
 driver/docker: Fix broken code
 ```
@@ -68,11 +68,11 @@ client: Fix broken code
 ```release-note:bug
 cli: Fix broken code
 ```
-~~~
+````
 
 ### Long Description with Markdown
 
-~~~
+````
 ```release-note:feature
 main: Lorem ipsum dolor `sit amet`, _consectetur_ adipiscing elit, **sed** do
 eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
@@ -81,8 +81,7 @@ consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
 cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
 proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 ```
-~~~
-
+````
 
 ## How to generate CHANGELOG entries for release
 
@@ -108,15 +107,15 @@ The command will output the changelog entries to be inserted into CHANGELOG.md w
 ```md
 IMPROVEMENTS:
 
-* Added the `bar` interface. [[GH-2032](https://github.com/hashicorp/nomad/issues/2032)]
+- Added the `bar` interface. [[GH-2032](https://github.com/hashicorp/nomad/issues/2032)]
 
 DEPRECATIONS:
 
-* Deprecated the `foo` interface, please use the `bar` interface instead. [[GH-1001](https://github.com/hashicorp/nomad/issues/1001)]
+- Deprecated the `foo` interface, please use the `bar` interface instead. [[GH-1001](https://github.com/hashicorp/nomad/issues/1001)]
 
 BUG FIXES:
 
-* csi: fixed a CLI panic when formatting `volume status` with `-verbose` flag [[GH-10818](https://github.com/hashicorp/nomad/issues/10818)]
+- csi: fixed a CLI panic when formatting `volume status` with `-verbose` flag [[GH-10818](https://github.com/hashicorp/nomad/issues/10818)]
 ```
 
 ## FAQ
@@ -130,5 +129,3 @@ When amending entries for an already published release, update the CHANGELOG.md 
 ### Just modified the entry file, but the `go-changelog` isn't picking it up.
 
 Commit the entry first! `go-changelog` operators on committed files only.
-
-

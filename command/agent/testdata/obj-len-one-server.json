@@ -1,7 +1,7 @@
 {
-	"server": {
-		"server_join": {
-			"start_join": ["foo", "bar"]
-		}
-	},
+  "server": {
+    "server_join": {
+      "start_join": ["foo", "bar"]
+    }
+  }
 }
