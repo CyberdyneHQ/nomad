@@ -17,7 +17,7 @@
   "region": "global",
   "server": {
     "bootstrap_expect": 3,
-    "enabled": true,
+    "enabled": true
   },
   "syslog_facility": "LOCAL0",
   "telemetry": {
@@ -33,6 +33,6 @@
     "verify_server_hostname": true
   },
   "vault": {
-    "create_from_role": "nomad-cluster",
+    "create_from_role": "nomad-cluster"
   }
 }

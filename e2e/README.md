@@ -23,9 +23,9 @@ and server.
 To run tests against a local cluster, you'll need to make sure the following
 environment variables are set:
 
-* `NOMAD_ADDR` should point to one of the Nomad servers
-* `CONSUL_HTTP_ADDR` should point to one of the Consul servers
-* `NOMAD_E2E=1`
+- `NOMAD_ADDR` should point to one of the Nomad servers
+- `CONSUL_HTTP_ADDR` should point to one of the Consul servers
+- `NOMAD_E2E=1`
 
 _TODO: the scripts in `./bin` currently work only with Terraform, it would be
 nice for us to have a way to deploy Nomad to Vagrant or local clusters._
@@ -73,7 +73,6 @@ test:
 ```sh
 go test -v . -run TestExample/TestExample_Simple
 ```
-
 
 ## I Want To...
 

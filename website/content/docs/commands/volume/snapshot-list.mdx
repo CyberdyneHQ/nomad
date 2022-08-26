@@ -1,6 +1,6 @@
 ---
 layout: docs
-page_title: 'Commands: volume snapshot list'
+page_title: "Commands: volume snapshot list"
 description: |
   List external volume snapshots.
 ---
@@ -55,6 +55,7 @@ snap-67890   vol-fedcba   50GiB  2021-01-04T15:45:00Z  true
 ```
 
 List volume snapshots with two secret key/value pairs:
+
 ```shell-session
 $ nomad volume snapshot list -plugin aws-ebs0 -secret key1=value1 -secret key2=val2
 Snapshot ID  External ID  Size   Creation Time         Ready?
