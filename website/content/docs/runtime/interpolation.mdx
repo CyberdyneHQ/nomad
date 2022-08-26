@@ -74,7 +74,7 @@ driver.
   <tbody>
     <tr>
       <td>
-        <code>{'${node.unique.id}'}</code>
+        <code>{"${node.unique.id}"}</code>
       </td>
       <td>36 character unique client identifier</td>
       <td>
@@ -83,7 +83,7 @@ driver.
     </tr>
     <tr>
       <td>
-        <code>{'${node.region}'}</code>
+        <code>{"${node.region}"}</code>
       </td>
       <td>Client's region</td>
       <td>
@@ -92,7 +92,7 @@ driver.
     </tr>
     <tr>
       <td>
-        <code>{'${node.datacenter}'}</code>
+        <code>{"${node.datacenter}"}</code>
       </td>
       <td>Client's datacenter</td>
       <td>
@@ -101,7 +101,7 @@ driver.
     </tr>
     <tr>
       <td>
-        <code>{'${node.unique.name}'}</code>
+        <code>{"${node.unique.name}"}</code>
       </td>
       <td>Client's name</td>
       <td>
@@ -110,7 +110,7 @@ driver.
     </tr>
     <tr>
       <td>
-        <code>{'${node.class}'}</code>
+        <code>{"${node.class}"}</code>
       </td>
       <td>Client's class</td>
       <td>
@@ -120,27 +120,27 @@ driver.
     <tr>
       <td>
         <code>
-          ${'{'}attr.&lt;property&gt;{'}'}
+          ${"{"}attr.&lt;property&gt;{"}"}
         </code>
       </td>
       <td>
         Property given by <code>property</code> on the client
       </td>
       <td>
-        <code>{'${attr.cpu.arch} => amd64'}</code>
+        <code>{"${attr.cpu.arch} => amd64"}</code>
       </td>
     </tr>
     <tr>
       <td>
         <code>
-          ${'{'}meta.&lt;key&gt;{'}'}
+          ${"{"}meta.&lt;key&gt;{"}"}
         </code>
       </td>
       <td>
         Metadata value given by <code>key</code> on the client
       </td>
       <td>
-        <code>{'${meta.foo} => bar'}</code>
+        <code>{"${meta.foo} => bar"}</code>
       </td>
     </tr>
   </tbody>
@@ -158,38 +158,38 @@ Below is a table documenting common node properties:
   <tbody>
     <tr>
       <td>
-        <code>{'${attr.cpu.arch}'}</code>
+        <code>{"${attr.cpu.arch}"}</code>
       </td>
       <td>
-        CPU architecture of the client (e.g. <code>amd64</code>,{' '}
+        CPU architecture of the client (e.g. <code>amd64</code>,{" "}
         <code>386</code>)
       </td>
     </tr>
     <tr>
       <td>
-        <code>{'${attr.cpu.numcores}'}</code>
+        <code>{"${attr.cpu.numcores}"}</code>
       </td>
       <td>Number of CPU cores on the client</td>
     </tr>
     <tr>
       <td>
-        <code>{'${attr.cpu.totalcompute}'}</code>
+        <code>{"${attr.cpu.totalcompute}"}</code>
       </td>
       <td>
-        <code>cpu.frequency &times; cpu.numcores</code> but may be overridden by{' '}
+        <code>cpu.frequency &times; cpu.numcores</code> but may be overridden by{" "}
         <code>client.cpu_total_compute</code>
       </td>
     </tr>
     <tr>
       <td>
-        <code>{'${attr.consul.datacenter}'}</code>
+        <code>{"${attr.consul.datacenter}"}</code>
       </td>
       <td>The Consul datacenter of the client (if Consul is found)</td>
     </tr>
     <tr>
       <td>
         <code>
-          ${'{'}attr.driver.&lt;property&gt;{'}'}
+          ${"{"}attr.driver.&lt;property&gt;{"}"}
         </code>
       </td>
       <td>
@@ -199,13 +199,13 @@ Below is a table documenting common node properties:
     </tr>
     <tr>
       <td>
-        <code>{'${attr.unique.hostname}'}</code>
+        <code>{"${attr.unique.hostname}"}</code>
       </td>
       <td>Hostname of the client</td>
     </tr>
     <tr>
       <td>
-        <code>{'${attr.unique.network.ip-address}'}</code>
+        <code>{"${attr.unique.network.ip-address}"}</code>
       </td>
       <td>
         The IP address fingerprinted by the client and from which task ports are
@@ -214,15 +214,16 @@ Below is a table documenting common node properties:
     </tr>
     <tr>
       <td>
-        <code>{'${attr.kernel.arch}'}</code>
+        <code>{"${attr.kernel.arch}"}</code>
       </td>
       <td>
-        Kernel architecture of the client (e.g. <code>x86_64</code>, <code>aarch64</code>)
+        Kernel architecture of the client (e.g. <code>x86_64</code>,{" "}
+        <code>aarch64</code>)
       </td>
     </tr>
     <tr>
       <td>
-        <code>{'${attr.kernel.name}'}</code>
+        <code>{"${attr.kernel.name}"}</code>
       </td>
       <td>
         Kernel of the client (e.g. <code>linux</code>, <code>darwin</code>)
@@ -230,49 +231,51 @@ Below is a table documenting common node properties:
     </tr>
     <tr>
       <td>
-        <code>{'${attr.kernel.version}'}</code>
+        <code>{"${attr.kernel.version}"}</code>
       </td>
       <td>
-        Version of the client kernel (e.g. <code>3.19.0-25-generic</code>,{' '}
+        Version of the client kernel (e.g. <code>3.19.0-25-generic</code>,{" "}
         <code>15.0.0</code>)
       </td>
     </tr>
     <tr>
       <td>
-        <code>{'${attr.platform.aws.ami-id}'}</code>
+        <code>{"${attr.platform.aws.ami-id}"}</code>
       </td>
       <td>AMI ID of the client (if on AWS EC2)</td>
     </tr>
     <tr>
       <td>
-        <code>{'${attr.platform.aws.instance-life-cycle}'}</code>
+        <code>{"${attr.platform.aws.instance-life-cycle}"}</code>
       </td>
-      <td>Instance lifecycle (e.g. spot, on-demand) of the client (if on AWS EC2)</td>
+      <td>
+        Instance lifecycle (e.g. spot, on-demand) of the client (if on AWS EC2)
+      </td>
     </tr>
     <tr>
       <td>
-        <code>{'${attr.platform.aws.instance-type}'}</code>
+        <code>{"${attr.platform.aws.instance-type}"}</code>
       </td>
       <td>Instance type of the client (if on AWS EC2)</td>
     </tr>
     <tr>
       <td>
-        <code>{'${attr.platform.aws.placement.availability-zone}'}</code>
+        <code>{"${attr.platform.aws.placement.availability-zone}"}</code>
       </td>
       <td>Availability Zone of the client (if on AWS EC2)</td>
     </tr>
     <tr>
       <td>
-        <code>{'${attr.os.name}'}</code>
+        <code>{"${attr.os.name}"}</code>
       </td>
       <td>
-        Operating system of the client (e.g. <code>ubuntu</code>,{' '}
+        Operating system of the client (e.g. <code>ubuntu</code>,{" "}
         <code>windows</code>, <code>darwin</code>)
       </td>
     </tr>
     <tr>
       <td>
-        <code>{'${attr.os.version}'}</code>
+        <code>{"${attr.os.version}"}</code>
       </td>
       <td>Version of the client OS</td>
     </tr>
