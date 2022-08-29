@@ -7,21 +7,26 @@ import moment from 'moment';
 const UUIDS = provide(100, faker.random.uuid.bind(faker.random));
 const NODE_STATUSES = ['initializing', 'ready', 'down'];
 const NODE_CLASSES = provide(7, faker.company.bsBuzz.bind(faker.company));
-const NODE_VERSIONS = ['1.1.0-beta', '1.0.2-alpha+ent', ...provide(5, faker.system.semver)];
+const NODE_VERSIONS = [
+  '1.1.0-beta',
+  '1.0.2-alpha+ent',
+  ...provide(5, faker.system.semver),
+];
 const REF_DATE = new Date();
 
 export default Factory.extend({
-  id: i => (i / 100 >= 1 ? `${UUIDS[i]}-${i}` : UUIDS[i]),
-  name: i => `nomad@${HOSTS[i % HOSTS.length]}`,
+  id: (i) => (i / 100 >= 1 ? `${UUIDS[i]}-${i}` : UUIDS[i]),
+  name: (i) => `nomad@${HOSTS[i % HOSTS.length]}`,
 
   datacenter: () => faker.helpers.randomize(DATACENTERS),
   nodeClass: () => faker.helpers.randomize(NODE_CLASSES),
   drain: faker.random.boolean,
   status: () => faker.helpers.randomize(NODE_STATUSES),
   tlsEnabled: faker.random.boolean,
-  schedulingEligibility: () => (faker.random.boolean() ? 'eligible' : 'ineligible'),
+  schedulingEligibility: () =>
+    faker.random.boolean() ? 'eligible' : 'ineligible',
 
-  createIndex: i => i,
+  createIndex: (i) => i,
   modifyIndex: () => faker.random.number({ min: 10, max: 2000 }),
   version: () => faker.helpers.randomize(NODE_VERSIONS),
 
@@ -30,8 +35,8 @@ export default Factory.extend({
   },
 
   forceIPv4: trait({
-    name: i => {
-      const ipv4Hosts = HOSTS.filter(h => !h.startsWith('['));
+    name: (i) => {
+      const ipv4Hosts = HOSTS.filter((h) => !h.startsWith('['));
       return `nomad@${ipv4Hosts[i % ipv4Hosts.length]}`;
     },
   }),
@@ -40,8 +45,13 @@ export default Factory.extend({
     drain: true,
     schedulingEligibility: 'ineligible',
     drainStrategy: {
-      Deadline: faker.random.number({ min: 30 * 1000, max: 5 * 60 * 60 * 1000 }) * 1000000,
-      ForceDeadline: moment(REF_DATE).add(faker.random.number({ min: 1, max: 5 }), 'd'),
+      Deadline:
+        faker.random.number({ min: 30 * 1000, max: 5 * 60 * 60 * 1000 }) *
+        1000000,
+      ForceDeadline: moment(REF_DATE).add(
+        faker.random.number({ min: 1, max: 5 }),
+        'd'
+      ),
       IgnoreSystemJobs: faker.random.boolean(),
     },
   }),
@@ -130,9 +140,13 @@ export default Factory.extend({
       id: node.httpAddr,
     });
 
-    const events = server.createList('node-event', faker.random.number({ min: 1, max: 10 }), {
-      nodeId: node.id,
-    });
+    const events = server.createList(
+      'node-event',
+      faker.random.number({ min: 1, max: 10 }),
+      {
+        nodeId: node.id,
+      }
+    );
 
     node.update({
       eventIds: events.mapBy('id'),
@@ -145,7 +159,7 @@ export default Factory.extend({
 });
 
 function makeDrivers() {
-  const generate = name => {
+  const generate = (name) => {
     const detected = faker.random.number(10) >= 3;
     const healthy = detected && faker.random.number(10) >= 3;
     const attributes = {

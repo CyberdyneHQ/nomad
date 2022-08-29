@@ -13,7 +13,7 @@ async function capture(page, name, options = {}) {
 }
 
 async function wait(time) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     setTimeout(resolve, time);
   });
 }
@@ -21,7 +21,7 @@ async function wait(time) {
 async function click(page, selector, options) {
   const [response] = await Promise.all([
     page.waitForNavigation(),
-    page.click(selector, options)
+    page.click(selector, options),
   ]);
 
   // Allow for render
@@ -34,7 +34,7 @@ async function clickX(page, path) {
   const [element] = await page.$x(path);
   const [response] = await Promise.all([
     page.waitForNavigation(),
-    element.click()
+    element.click(),
   ]);
 
   // Allow for render
@@ -48,7 +48,8 @@ async function clickJob(page, type) {
     "tr.job-row",
     (rows, type) =>
       rows.findIndex(
-        row => row.querySelector("td:nth-child(3)").textContent.trim() === type
+        (row) =>
+          row.querySelector("td:nth-child(3)").textContent.trim() === type
       ),
     type
   );
@@ -60,7 +61,7 @@ async function clickJob(page, type) {
 async function clickTab(page, label) {
   let tabIndex = await page.$$eval(
     ".tabs.is-subnav a",
-    (tabs, label) => tabs.findIndex(tab => tab.textContent.trim() === label),
+    (tabs, label) => tabs.findIndex((tab) => tab.textContent.trim() === label),
     label
   );
   tabIndex++;
@@ -86,5 +87,5 @@ module.exports = {
   clickX,
   clickJob,
   clickTab,
-  clickMainMenu
+  clickMainMenu,
 };

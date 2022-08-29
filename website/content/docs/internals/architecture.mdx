@@ -37,7 +37,7 @@ same client node and cannot be split.
 
 #### Driver
 
-A Driver represents the basic means of executing your **Tasks**.  Example
+A Driver represents the basic means of executing your **Tasks**. Example
 Drivers include Docker, QEMU, Java, and static binaries.
 
 #### Task
@@ -64,7 +64,7 @@ decisions made during an evaluation.
 
 #### Evaluation
 
-Evaluations are the mechanism by which Nomad makes scheduling decisions.  When
+Evaluations are the mechanism by which Nomad makes scheduling decisions. When
 either the _desired state_ (jobs) or _actual state_ (clients) changes, Nomad
 creates a new evaluation to determine if any actions must be taken. An
 evaluation may result in changes to allocations if necessary.
@@ -73,7 +73,7 @@ evaluation may result in changes to allocations if necessary.
 
 Nomad servers are the brains of the cluster. There is a cluster of servers per
 region and they manage all jobs and clients, run evaluations, and create task
-allocations.  The servers replicate data between each other and perform leader
+allocations. The servers replicate data between each other and perform leader
 election to ensure high availability. More information about latency
 requirements for servers can be found in [Network
 Topology](/docs/install/production/requirements#network-topology).
