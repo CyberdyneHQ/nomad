@@ -77,12 +77,12 @@ The files in `etc` are template configuration files for Nomad and the
 Consul agent. Terraform will render these files to the `uploads`
 folder and upload them to the cluster during provisioning.
 
-* `etc/nomad.d` are the Nomad configuration files.
-  * `base.hcl`, `tls.hcl`, `consul.hcl`, and `vault.hcl` are shared.
-  * `server-linux.hcl`, `client-linux.hcl`, and `client-windows.hcl` are role and platform specific.
-  * `client-linux-0.hcl`, etc. are specific to individual instances.
-* `etc/consul.d` are the Consul agent configuration files.
-* `etc/acls` are ACL policy files for Consul and Vault.
+- `etc/nomad.d` are the Nomad configuration files.
+  - `base.hcl`, `tls.hcl`, `consul.hcl`, and `vault.hcl` are shared.
+  - `server-linux.hcl`, `client-linux.hcl`, and `client-windows.hcl` are role and platform specific.
+  - `client-linux-0.hcl`, etc. are specific to individual instances.
+- `etc/consul.d` are the Consul agent configuration files.
+- `etc/acls` are ACL policy files for Consul and Vault.
 
 ## Web UI
 
@@ -148,28 +148,28 @@ terraform destroy
 #### E2E Provisioning Goals
 
 1. The provisioning process should be able to run a nightly build against a
-  variety of OS targets.
+   variety of OS targets.
 2. The provisioning process should be able to support update-in-place
-  tests. (See [#7063](https://github.com/hashicorp/nomad/issues/7063))
+   tests. (See [#7063](https://github.com/hashicorp/nomad/issues/7063))
 3. A developer should be able to quickly stand up a small E2E cluster and
-  provision it with a version of Nomad they've built on their laptop. The
-  developer should be able to send updated builds to that cluster with a short
-  iteration time, rather than having to rebuild the cluster.
+   provision it with a version of Nomad they've built on their laptop. The
+   developer should be able to send updated builds to that cluster with a short
+   iteration time, rather than having to rebuild the cluster.
 
 #### Why not just drop all the provisioning into the AMI?
 
 While that's the "correct" production approach for cloud infrastructure, it
 creates a few pain points for testing:
 
-* Creating a Linux AMI takes >10min, and creating a Windows AMI can take
+- Creating a Linux AMI takes >10min, and creating a Windows AMI can take
   15-20min. This interferes with goal (3) above.
-* We won't be able to do in-place upgrade testing without having an in-place
+- We won't be able to do in-place upgrade testing without having an in-place
   provisioning process anyways. This interferes with goals (2) above.
 
 #### Why not just drop all the provisioning into the user data?
 
-* Userdata is executed on boot, which prevents using them for in-place upgrade
+- Userdata is executed on boot, which prevents using them for in-place upgrade
   testing.
-* Userdata scripts are not very observable and it's painful to determine
+- Userdata scripts are not very observable and it's painful to determine
   whether they've failed or simply haven't finished yet before trying to run
   tests.

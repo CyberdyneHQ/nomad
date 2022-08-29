@@ -6,8 +6,8 @@ To get started, you will need to [create an Azure account](https://azure.microso
 
 ## Install the Azure CLI
 
-Run the following commands to install the Azure CLI. Note that you can use the 
-[Vagrant](../Vagrantfile) included in this repository to bootstrap a staging 
+Run the following commands to install the Azure CLI. Note that you can use the
+[Vagrant](../Vagrantfile) included in this repository to bootstrap a staging
 environment that pre-installs the Azure CLI.
 
 ```bash
@@ -41,17 +41,17 @@ $ az login
 ]
 ```
 
-After completing the login process, take note of the values for `id` and 
-`tenantId` in the output above. These will be used to set the 
-`ARM_SUBSCRIPTION_ID` and `ARM_TENANT_ID` environment variables for Packer 
+After completing the login process, take note of the values for `id` and
+`tenantId` in the output above. These will be used to set the
+`ARM_SUBSCRIPTION_ID` and `ARM_TENANT_ID` environment variables for Packer
 and Terraform.
 
 ie.
+
 ```bash
 export ARM_SUBSCRIPTION_ID=SUBSCRIPTION_ID
 export ARM_TENANT_ID=TENANT_ID
 ```
-
 
 ## Create an Application Id and Password
 
@@ -69,10 +69,11 @@ $ az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/${ARM_S
 }
 ```
 
-The values for `appId` and `password` above will be used for the `ARM_CLIENT_ID` 
+The values for `appId` and `password` above will be used for the `ARM_CLIENT_ID`
 and `ARM_CLIENT_SECRET` environment variables.
 
 ie.
+
 ```bash
 export ARM_CLIENT_ID=CLIENT_ID
 export ARM_CLIENT_SECRET=CLIENT_SECRET
@@ -91,23 +92,24 @@ $ az group create --name packer --location "East US"
 Upto this point we already have set:
 
 ```bash
-export ARM_SUBSCRIPTION_ID=[ARM_SUBSCRIPTION_ID]  
-export ARM_TENANT_ID=[ARM_TENANT_ID]  
-export ARM_CLIENT_ID=[ARM_CLIENT_ID]  
-export ARM_CLIENT_SECRET=[ARM_CLIENT_SECRET]  
+export ARM_SUBSCRIPTION_ID=[ARM_SUBSCRIPTION_ID]
+export ARM_TENANT_ID=[ARM_TENANT_ID]
+export ARM_CLIENT_ID=[ARM_CLIENT_ID]
+export ARM_CLIENT_SECRET=[ARM_CLIENT_SECRET]
 ```
 
 We need to add a new one:
+
 ```bash
-export AZURE_RESOURCE_GROUP=packer  
+export AZURE_RESOURCE_GROUP=packer
 ```
 
 ## Build an Azure machine image with Packer
 
-[Packer](https://www.packer.io/intro/index.html) is HashiCorp's open source tool 
-for creating identical machine images for multiple platforms from a single 
-source configuration. The machine image created here can be customized through 
-modifications to the [build configuration file](packer.json) and the 
+[Packer](https://www.packer.io/intro/index.html) is HashiCorp's open source tool
+for creating identical machine images for multiple platforms from a single
+source configuration. The machine image created here can be customized through
+modifications to the [build configuration file](packer.json) and the
 [shell script](../shared/scripts/setup.sh).
 
 Use the following command to build the machine image:
@@ -116,7 +118,7 @@ Use the following command to build the machine image:
 $ packer build packer.json
 ```
 
-After the Packer build process completes, you can retrieve the image Id using the 
+After the Packer build process completes, you can retrieve the image Id using the
 following CLI command:
 
 ```bash
@@ -141,9 +143,9 @@ $ az image delete --name hashistack --resource-group packer
 $ cd env/EastUS
 ```
 
-Consul supports a cloud-based auto join feature which includes support for Azure. 
-The feature requires that we create a service principal with the `Reader` role. 
-Run the following command to create an Azure service principal for Consul auto join: 
+Consul supports a cloud-based auto join feature which includes support for Azure.
+The feature requires that we create a service principal with the `Reader` role.
+Run the following command to create an Azure service principal for Consul auto join:
 
 ```bash
 $ az ad sp create-for-rbac --role="Reader" --scopes="/subscriptions/[SUBSCRIPTION_ID]"
@@ -185,9 +187,9 @@ SSH to one of the servers using its public IP:
 $ ssh -i azure-hashistack.pem ubuntu@PUBLIC_IP
 ```
 
-`azure-hashistack.pem` above is auto-created during the provisioning process. The 
-infrastructure that is provisioned for this test environment is configured to 
-allow all traffic over port 22. This is obviously not recommended for production 
+`azure-hashistack.pem` above is auto-created during the provisioning process. The
+infrastructure that is provisioned for this test environment is configured to
+allow all traffic over port 22. This is obviously not recommended for production
 deployments.
 
 ## Next steps
