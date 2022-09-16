@@ -59,9 +59,7 @@ $ nomad job run -output example.nomad
     "Type": "service",
     "Priority": null,
     "AllAtOnce": null,
-    "Datacenters": [
-      "dc1"
-    ],
+    "Datacenters": ["dc1"],
     "Constraints": null,
     "Affinities": null,
     "TaskGroups": [
@@ -78,9 +76,7 @@ $ nomad job run -output example.nomad
             "Lifecycle": null,
             "Config": {
               "image": "redis:7",
-              "ports": [
-                "db"
-              ]
+              "ports": ["db"]
             },
             "Constraints": null,
             "Affinities": null,
@@ -153,10 +149,7 @@ $ nomad job run -output example.nomad
           {
             "Id": "",
             "Name": "redis-cache",
-            "Tags": [
-              "global",
-              "cache"
-            ],
+            "Tags": ["global", "cache"],
             "CanaryTags": null,
             "EnableTagOverride": false,
             "PortLabel": "db",
@@ -1153,6 +1146,6 @@ The `Scaling` object supports the following keys:
 - `Policy` - An optional JSON block. This is opaque to Nomad; see the documentation for the external
   autoscaler (e.g., [nomad-autoscaler](https://github.com/hashicorp/nomad-autoscaler)).
 
-[ct]: https://github.com/hashicorp/consul-template 'Consul Template by HashiCorp'
+[ct]: https://github.com/hashicorp/consul-template "Consul Template by HashiCorp"
 [drain]: /docs/commands/node/drain
-[env]: /docs/runtime/environment 'Nomad Runtime Environment'
+[env]: /docs/runtime/environment "Nomad Runtime Environment"

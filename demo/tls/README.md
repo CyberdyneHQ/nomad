@@ -1,5 +1,4 @@
-Demo TLS Configuration
-======================
+# Demo TLS Configuration
 
 **Do _NOT_ use in production. For testing purposes only.**
 
@@ -12,18 +11,18 @@ and pre-generated are available for use.
 
 ## Files
 
-| Generated? | File | Description |
-| - | ------------- | ---|
-| ◻️ | `GNUmakefile` | Makefile to generate certificates |
-| ◻️ | `tls-*.hcl`   | Nomad TLS configurations |
-| ◻️ | `cfssl*.json` | cfssl configuration files |
-| ◻️ | `csr*.json`   | cfssl certificate generation configurations |
-| ☑️ | `ca*.pem`     | Certificate Authority certificate and key |
-| ☑️ | `client*.pem` | Nomad client node certificate and key |
-| ☑️ | `dev*.pem`    | Nomad certificate and key for dev agents |
-| ☑️ | `server*.pem` | Nomad server certificate and key |
-| ☑️ | `user*.pem`   | Nomad user (CLI) certificate and key |
-| ☑️ | `user.pfx`    | Nomad browser PKCS #12 certificate and key *(blank password)* |
+| Generated? | File          | Description                                                   |
+| ---------- | ------------- | ------------------------------------------------------------- |
+| ◻️         | `GNUmakefile` | Makefile to generate certificates                             |
+| ◻️         | `tls-*.hcl`   | Nomad TLS configurations                                      |
+| ◻️         | `cfssl*.json` | cfssl configuration files                                     |
+| ◻️         | `csr*.json`   | cfssl certificate generation configurations                   |
+| ☑️         | `ca*.pem`     | Certificate Authority certificate and key                     |
+| ☑️         | `client*.pem` | Nomad client node certificate and key                         |
+| ☑️         | `dev*.pem`    | Nomad certificate and key for dev agents                      |
+| ☑️         | `server*.pem` | Nomad server certificate and key                              |
+| ☑️         | `user*.pem`   | Nomad user (CLI) certificate and key                          |
+| ☑️         | `user.pfx`    | Nomad browser PKCS #12 certificate and key _(blank password)_ |
 
 ## Usage
 
@@ -31,7 +30,7 @@ and pre-generated are available for use.
 
 To run a TLS-enabled Nomad agent include the `tls.hcl` configuration file with
 either the `-dev` flag or your own configuration file. If you're not running
-the `nomad agent` command from *this* directory you will have to edit the paths
+the `nomad agent` command from _this_ directory you will have to edit the paths
 in `tls.hcl`.
 
 ```sh
