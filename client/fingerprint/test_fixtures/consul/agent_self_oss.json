@@ -94,7 +94,7 @@
     "CAPath": "",
     "Cache": {
       "EntryFetchMaxBurst": 2,
-      "EntryFetchRate": 1.7976931348623157e+308,
+      "EntryFetchRate": 1.7976931348623157e308,
       "Logger": null
     },
     "CertFile": "",
@@ -103,9 +103,7 @@
     "CheckReapInterval": "30s",
     "CheckUpdateInterval": "5m0s",
     "Checks": [],
-    "ClientAddrs": [
-      "127.0.0.1"
-    ],
+    "ClientAddrs": ["127.0.0.1"],
     "ConfigEntryBootstrap": [],
     "ConnectCAConfig": {},
     "ConnectCAProvider": "",
@@ -122,10 +120,7 @@
     "ConsulRaftLeaderLeaseTimeout": "20ms",
     "ConsulServerHealthInterval": "10ms",
     "DNSARecordLimit": 0,
-    "DNSAddrs": [
-      "tcp://127.0.0.1:8600",
-      "udp://127.0.0.1:8600"
-    ],
+    "DNSAddrs": ["tcp://127.0.0.1:8600", "udp://127.0.0.1:8600"],
     "DNSAllowStale": true,
     "DNSAltDomain": "",
     "DNSCacheMaxAge": "0s",
@@ -172,9 +167,7 @@
     "EnterpriseRuntimeConfig": {},
     "ExposeMaxPort": 21755,
     "ExposeMinPort": 21500,
-    "GRPCAddrs": [
-      "tcp://127.0.0.1:8502"
-    ],
+    "GRPCAddrs": ["tcp://127.0.0.1:8502"],
     "GRPCPort": 8502,
     "GossipLANGossipInterval": "100ms",
     "GossipLANGossipNodes": 3,
@@ -188,9 +181,7 @@
     "GossipWANProbeTimeout": "100ms",
     "GossipWANRetransmitMult": 4,
     "GossipWANSuspicionMult": 3,
-    "HTTPAddrs": [
-      "tcp://127.0.0.1:8500"
-    ],
+    "HTTPAddrs": ["tcp://127.0.0.1:8500"],
     "HTTPBlockEndpoints": [],
     "HTTPMaxConnsPerClient": 200,
     "HTTPMaxHeaderBytes": 0,
@@ -343,16 +334,7 @@
     "Watches": []
   },
   "Coord": {
-    "Vec": [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
+    "Vec": [0, 0, 0, 0, 0, 0, 0, 0],
     "Error": 1.5,
     "Adjustment": 0,
     "Height": 0.00001
@@ -467,12 +449,7 @@
   },
   "xDS": {
     "SupportedProxies": {
-      "envoy": [
-        "1.16.2",
-        "1.15.3",
-        "1.14.6",
-        "1.13.7"
-      ]
+      "envoy": ["1.16.2", "1.15.3", "1.14.6", "1.13.7"]
     }
   }
 }

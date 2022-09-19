@@ -3,7 +3,7 @@
 Using [cfssl 1.6.0](https://github.com/cloudflare/cfssl)
 
 | File                | Description               |
-|---------------------|---------------------------|
+| ------------------- | ------------------------- |
 | `ca.pem`            | CA certificate            |
 | `ca-key.pem`        | CA Key                    |
 | `nomad-foo.pem`     | Nomad cert for foo region |
@@ -15,6 +15,7 @@ Using [cfssl 1.6.0](https://github.com/cloudflare/cfssl)
 | `global-*.pem`      | For global region         |
 
 ## Generating self-signed certs
+
 ```sh
 # Write defaults and update.
 # NOTE: this doesn't need to be run if regenerating old certificates and

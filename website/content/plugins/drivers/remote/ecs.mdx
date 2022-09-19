@@ -1,6 +1,6 @@
 ---
 layout: docs
-page_title: 'Task Driver Plugins: ECS Task Driver'
+page_title: "Task Driver Plugins: ECS Task Driver"
 description: >-
   The AWS ECS Task Driver is an example Remote Task Driver.
 ---
@@ -21,7 +21,7 @@ AWS ECS. The Nomad client agent manages the remote ECS task like any other
 local Nomad task: restarting it if it fails, stopping it when requested, etc.
 
 When a Nomad node assigned allocations with ECS tasks is drained, the ECS tasks
-are *not stopped.* Instead the replacement allocations reconnect to the
+are _not stopped._ Instead the replacement allocations reconnect to the
 original ECS tasks to avoid unnecessary downtime.
 
 If a Nomad node assigned allocations with ECS tasks crashes and is considered
