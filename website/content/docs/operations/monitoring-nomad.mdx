@@ -117,8 +117,7 @@ The `nomad.raft.fsm.apply` metric is an indicator of the time it takes
 for a server to apply Raft entries to the internal state machine. If
 this number trends upwards, look at the `nomad.nomad.fsm.*` metrics to
 see if a specific Raft entry is increasing in latency. You can compare
-this to warn-level logs on the Nomad servers for `attempting to apply
-large raft entry`. If a specific type of message appears here, there
+this to warn-level logs on the Nomad servers for `attempting to apply large raft entry`. If a specific type of message appears here, there
 may be a job with a large job specification or dispatch payload that
 is increasing the time it takes to apply Raft messages. Try shrinking the size
 of the job either by putting distinct task groups into separate jobs,
@@ -133,7 +132,7 @@ scheduled plans and placed allocations.
 ### Progress
 
 There is a class of bug possible in Nomad where the two parts of the scheduling
-pipeline, the workers and the leader's plan applier, *disagree* about the
+pipeline, the workers and the leader's plan applier, _disagree_ about the
 validity of a plan. In the pathological case this can cause a job to never
 finish scheduling, as workers produce the same plan and the plan applier
 repeatedly rejects it.
@@ -149,7 +148,7 @@ While it is possible for these log lines to occur infrequently due to normal
 cluster conditions, they should not appear repeatedly and prevent the job from
 eventually running (look up the evaluation ID logged to find the job).
 
-If this log *does* appear repeatedly with the same `node_id` referenced, try
+If this log _does_ appear repeatedly with the same `node_id` referenced, try
 [draining] the node and shutting it down. Misconfigurations not caught by
 validation can cause nodes to enter this state: [#11830][gh-11830].
 
@@ -284,6 +283,6 @@ latency and packet loss for the [Serf] address.
 [statsite-telem]: /docs/configuration/telemetry#statsite
 [tagged-metrics]: /docs/telemetry/metrics#tagged-metrics
 [telemetry-stanza]: /docs/configuration/telemetry
-[Consensus Protocol (Raft)]: /docs/operations/telemetry#consensus-protocol-raft
-[Job Summary Metrics]: /docs/operations/metrics-reference#job-summary-metrics
-[Scheduling]: /docs/internals/scheduling/scheduling
+[consensus protocol (raft)]: /docs/operations/telemetry#consensus-protocol-raft
+[job summary metrics]: /docs/operations/metrics-reference#job-summary-metrics
+[scheduling]: /docs/internals/scheduling/scheduling

@@ -120,17 +120,11 @@
       "server_join": [
         {
           "retry_interval": "15s",
-          "retry_join": [
-            "1.1.1.1",
-            "2.2.2.2"
-          ],
+          "retry_join": ["1.1.1.1", "2.2.2.2"],
           "retry_max": 3
         }
       ],
-      "servers": [
-        "a.b.c:80",
-        "127.0.0.1:1234"
-      ],
+      "servers": ["a.b.c:80", "127.0.0.1:1234"],
       "state_dir": "/tmp/client-state",
       "stats": [
         {
@@ -184,10 +178,7 @@
     {
       "docker": [
         {
-          "args": [
-            "foo",
-            "bar"
-          ],
+          "args": ["foo", "bar"],
           "config": [
             {
               "foo": "bar",
@@ -228,11 +219,7 @@
         {
           "foo": [
             {
-              "args": [
-                "a",
-                "b",
-                "c"
-              ],
+              "args": ["a", "b", "c"],
               "path": "foo"
             }
           ]
@@ -240,11 +227,7 @@
         {
           "bar": [
             {
-              "args": [
-                "x",
-                "y",
-                "z"
-              ],
+              "args": ["x", "y", "z"],
               "path": "bar"
             }
           ]
@@ -263,9 +246,7 @@
       "enabled": true,
       "enable_event_broker": false,
       "event_buffer_size": 200,
-      "enabled_schedulers": [
-        "test"
-      ],
+      "enabled_schedulers": ["test"],
       "encrypt": "abc",
       "eval_gc_threshold": "12h",
       "heartbeat_grace": "30s",
@@ -282,33 +263,28 @@
       "redundancy_zone": "foo",
       "rejoin_after_leave": true,
       "retry_interval": "15s",
-      "retry_join": [
-        "1.1.1.1",
-        "2.2.2.2"
-      ],
+      "retry_join": ["1.1.1.1", "2.2.2.2"],
       "retry_max": 3,
       "server_join": [
         {
           "retry_interval": "15s",
-          "retry_join": [
-            "1.1.1.1",
-            "2.2.2.2"
-          ],
+          "retry_join": ["1.1.1.1", "2.2.2.2"],
           "retry_max": 3
         }
       ],
-      "start_join": [
-        "1.1.1.1",
-        "2.2.2.2"
+      "start_join": ["1.1.1.1", "2.2.2.2"],
+      "default_scheduler_config": [
+        {
+          "scheduler_algorithm": "spread",
+          "preemption_config": [
+            {
+              "batch_scheduler_enabled": true,
+              "system_scheduler_enabled": true,
+              "service_scheduler_enabled": true
+            }
+          ]
+        }
       ],
-      "default_scheduler_config": [{
-        "scheduler_algorithm": "spread",
-        "preemption_config": [{
-          "batch_scheduler_enabled": true,
-          "system_scheduler_enabled": true,
-          "service_scheduler_enabled": true
-        }]
-      }],
       "upgrade_version": "0.8.0",
       "license_path": "/tmp/nomad.hclic"
     }

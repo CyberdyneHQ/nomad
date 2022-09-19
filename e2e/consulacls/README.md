@@ -12,7 +12,7 @@ the e2e directory (i.e. the directory from wich the e2e framework also runs).
 
 ### bootstrap
 
-The command `consul-acls-manage.sh bootstrap` should *NOT* be used from e2e
+The command `consul-acls-manage.sh bootstrap` should _NOT_ be used from e2e
 framework tests. It's merely a convenience entry-point for doing development /
 debugging on the script itself.
 
