@@ -10,11 +10,11 @@ This tutorial will teach you how to deploy [Nomad](https://www.nomadproject.io/)
 
 Includes:
 
-* Installing HashiCorp Tools (Nomad, Consul, Vault, Terraform, and Packer).
-* Installing the GCP SDK CLI Tools, if you're not using Cloud Shell.
-* Creating a new GCP project, along with a Terraform Service Account.
-* Building a golden image using Packer.
-* Deploying a cluster with Terraform.
+- Installing HashiCorp Tools (Nomad, Consul, Vault, Terraform, and Packer).
+- Installing the GCP SDK CLI Tools, if you're not using Cloud Shell.
+- Creating a new GCP project, along with a Terraform Service Account.
+- Building a golden image using Packer.
+- Deploying a cluster with Terraform.
 
 ## Install HashiCorp Tools
 
@@ -79,9 +79,9 @@ terraform --version
 
 To install the GCP SDK Command Line Tools, follow the installation instructions for your specific operating system:
 
-* [Linux](https://cloud.google.com/sdk/docs/downloads-interactive#linux)
-* [MacOS](https://cloud.google.com/sdk/docs/downloads-interactive#mac)
-* [Windows](https://cloud.google.com/sdk/docs/downloads-interactive#windows)
+- [Linux](https://cloud.google.com/sdk/docs/downloads-interactive#linux)
+- [MacOS](https://cloud.google.com/sdk/docs/downloads-interactive#mac)
+- [Windows](https://cloud.google.com/sdk/docs/downloads-interactive#windows)
 
 After installation, authenticate `gcloud` with the following command:
 
@@ -162,7 +162,7 @@ gcloud iam service-accounts keys create account.json \
 >
 > The `account.json` credentials gives privileged access to this GCP project. Be careful to avoid leaking these credentials by accidentally committing them to version control systems such as `git`, or storing them where they are visible to others. In general, storing these credentials on an individually operated, private computer (like your laptop) or in your own GCP cloud shell is acceptable for testing purposes. For production use, or for teams, use a secrets management system like HashiCorp [Vault](https://www.vaultproject.io/). For this tutorial's purposes, we'll be storing the `account.json` credentials on disk in the cloud shell.
 
-Now set the *full path* of the newly created `account.json` file as `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
+Now set the _full path_ of the newly created `account.json` file as `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
 
 ```console
 export GOOGLE_APPLICATION_CREDENTIALS=$(realpath account.json)
@@ -172,8 +172,8 @@ export GOOGLE_APPLICATION_CREDENTIALS=$(realpath account.json)
 
 Before moving onto the next steps, ensure the following environment variables are set:
 
-* `GOOGLE_PROJECT` with your selected GCP project ID.
-* `GOOGLE_APPLICATION_CREDENTIALS` with the *full path* to the Terraform Service Account `account.json` credentials file created in the last step.
+- `GOOGLE_PROJECT` with your selected GCP project ID.
+- `GOOGLE_APPLICATION_CREDENTIALS` with the _full path_ to the Terraform Service Account `account.json` credentials file created in the last step.
 
 ## Build HashiStack Golden Image with Packer
 
@@ -213,7 +213,7 @@ terraform apply -auto-approve -var="project=${GOOGLE_PROJECT}" -var="credentials
 
 ## Access the Cluster
 
-To access the Nomad, Consul, or Vault web UI inside the cluster, create an [SSH tunnel](https://cloud.google.com/community/tutorials/ssh-tunnel-on-gce) using `gcloud`. To open up tunnels to *all* of the UIs available in the cluster, run these commands which will start each SSH tunnel as a background process in your current shell:
+To access the Nomad, Consul, or Vault web UI inside the cluster, create an [SSH tunnel](https://cloud.google.com/community/tutorials/ssh-tunnel-on-gce) using `gcloud`. To open up tunnels to _all_ of the UIs available in the cluster, run these commands which will start each SSH tunnel as a background process in your current shell:
 
 ```console
 gcloud compute ssh hashistack-server-0 --zone=us-east1-c --tunnel-through-iap -- -f -N -L 127.0.0.1:4646:127.0.0.1:4646
@@ -223,15 +223,15 @@ gcloud compute ssh hashistack-server-0 --zone=us-east1-c --tunnel-through-iap --
 
 After running those commands, you can now click any of the following links to open up a Web Preview using Cloud Shell:
 
-* [Nomad](https://ssh.cloud.google.com/devshell/proxy?authuser=0&port=4646&environment_id=default)
-* [Vault](https://ssh.cloud.google.com/devshell/proxy?authuser=0&port=8200&environment_id=default)
-* [Consul](https://ssh.cloud.google.com/devshell/proxy?authuser=0&port=8500&environment_id=default)
+- [Nomad](https://ssh.cloud.google.com/devshell/proxy?authuser=0&port=4646&environment_id=default)
+- [Vault](https://ssh.cloud.google.com/devshell/proxy?authuser=0&port=8200&environment_id=default)
+- [Consul](https://ssh.cloud.google.com/devshell/proxy?authuser=0&port=8500&environment_id=default)
 
 If you're **not** using Cloud Shell, you can use any of these links:
 
-* [Nomad](http://127.0.0.1:4646)
-* [Vault](http://127.0.0.1:8200)
-* [Consul](http://127.0.0.1:8500)
+- [Nomad](http://127.0.0.1:4646)
+- [Vault](http://127.0.0.1:8200)
+- [Consul](http://127.0.0.1:8500)
 
 In case you want to try out any of the optional steps with the Vault CLI later on, set this helper variable:
 
@@ -246,6 +246,7 @@ You have deployed a Nomad cluster to GCP! 🎉
 Click [here](https://github.com/hashicorp/nomad/blob/main/terraform/README.md#test) for next steps.
 
 > ### After You Finish
+>
 > Come back here when you're done exploring Nomad and the HashiCorp stack. In the next section, you'll learn how to clean up, and will destroy the demo infrastructure you've created.
 
 ## Conclusion
@@ -259,6 +260,7 @@ To destroy all the demo infrastructure:
 ```console
 terraform destroy -force -var="project=${GOOGLE_PROJECT}" -var="credentials=${GOOGLE_APPLICATION_CREDENTIALS}"
 ```
+
 ### Delete the Project
 
 Finally, to completely delete the project:
