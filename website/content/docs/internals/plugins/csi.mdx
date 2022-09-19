@@ -58,8 +58,7 @@ specific to the provider implementation.
 Plugins mount and unmount volumes but are not in the data path once
 the volume is mounted for a task. Plugin tasks are needed when tasks
 using their volumes stop, so plugins should be left running on a Nomad
-client until all tasks using their volumes are stopped. The `nomad
-node drain` command handles this automatically by stopping plugin
+client until all tasks using their volumes are stopped. The `nomad node drain` command handles this automatically by stopping plugin
 tasks last.
 
 Typically, you should run node plugins as Nomad `system` jobs so they

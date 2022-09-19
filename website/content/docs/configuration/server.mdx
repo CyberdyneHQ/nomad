@@ -9,7 +9,7 @@ description: |-
 
 # `server` Stanza
 
-<Placement groups={['server']} />
+<Placement groups={["server"]} />
 
 The `server` stanza configures the Nomad agent to operate in server mode to
 participate in scheduling decisions, register with service discovery, handle
@@ -132,9 +132,9 @@ server {
   false positives and increased load on the leader.
 
 - `failover_heartbeat_ttl` `(string: "5m")` - Specifies the TTL applied to
-	heartbeats after a new leader is elected, since we no longer know the status
-	of all the heartbeats. This is specified using a label suffix like "30s" or
-	"1h".
+  heartbeats after a new leader is elected, since we no longer know the status
+  of all the heartbeats. This is specified using a label suffix like "30s" or
+  "1h".
 
   ~> Lowering the `failover_heartbeat_ttl` is a tradeoff as it lowers failure
   detection time of nodes at the tradeoff of false positives. False positives
@@ -158,7 +158,8 @@ server {
 
 - `raft_boltdb` - This is a nested object that allows configuring options for
   Raft's BoltDB based log store.
-    - `no_freelist_sync` - Setting this to `true` will disable syncing the BoltDB
+
+  - `no_freelist_sync` - Setting this to `true` will disable syncing the BoltDB
     freelist to disk within the `raft.db` file. Not syncing the freelist to disk
     will reduce disk IO required for write operations at the expense of longer
     server startup times.
@@ -327,9 +328,9 @@ server {
 }
 ```
 
-[encryption]: https://learn.hashicorp.com/tutorials/nomad/security-gossip-encryption 'Nomad Encryption Overview'
-[server-join]: /docs/configuration/server_join 'Server Join'
-[update-scheduler-config]: /api-docs/operator/scheduler#update-scheduler-configuration 'Scheduler Config'
+[encryption]: https://learn.hashicorp.com/tutorials/nomad/security-gossip-encryption "Nomad Encryption Overview"
+[server-join]: /docs/configuration/server_join "Server Join"
+[update-scheduler-config]: /api-docs/operator/scheduler#update-scheduler-configuration "Scheduler Config"
 [bootstrapping a cluster]: /docs/faq#bootstrapping
 [rfc4648]: https://tools.ietf.org/html/rfc4648#section-5
 [`nomad operator keygen`]: /docs/commands/operator/keygen

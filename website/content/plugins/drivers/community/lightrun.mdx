@@ -1,6 +1,6 @@
 ---
 layout: docs
-page_title: 'Drivers: Lightrun'
+page_title: "Drivers: Lightrun"
 description: The Lightrun driver is used to run your Java application with Lightrun.
 ---
 
@@ -25,19 +25,19 @@ Lightrun.
 1. Download or clone the [Lightrun driver repository][repo].
 1. Find the `lightrun-java-driver` driver in the repository's root folder.
 1. Copy the driver to your Nomad plugins directory (or create one if it doesn't
-  exist).
+   exist).
 1. Grant executable permissions to the driver file:
 
-    ```shell-session
-    $ chmod +x ./plugins/lightrun-java-driver
-    ```
+   ```shell-session
+   $ chmod +x ./plugins/lightrun-java-driver
+   ```
 
 1. When running the Nomad agent, make sure to specify the path to your plugins
-  directory:
+   directory:
 
-    ```shell-session
-    $ sudo nomad agent -dev -bind 0.0.0.0 -log-level DEBUG -plugin-dir=<path_to_plugins_directory>
-    ```
+   ```shell-session
+   $ sudo nomad agent -dev -bind 0.0.0.0 -log-level DEBUG -plugin-dir=<path_to_plugins_directory>
+   ```
 
 ## Task Configuration
 

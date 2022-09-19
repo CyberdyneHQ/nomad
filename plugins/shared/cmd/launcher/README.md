@@ -9,7 +9,6 @@ returned by a device plugin. As an example we will run the example device
 plugin. To use this command with your own device plugin substitute the example
 plugin with your own.
 
-
 ```
 # Current working directory should be the root folder: github.com/hashicorp/nomad
 

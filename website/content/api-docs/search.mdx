@@ -198,58 +198,35 @@ $ curl \
     "services": [
       {
         "ID": "python-logger",
-        "Scope": [
-          "default",
-          "example-python",
-          "my-spy-app",
-          "my-python-task"
-        ]
+        "Scope": ["default", "example-python", "my-spy-app", "my-python-task"]
       },
       {
         "ID": "super-spy-service",
-        "Scope": [
-          "default",
-          "example-python",
-          "my-spy-app"
-        ]
+        "Scope": ["default", "example-python", "my-spy-app"]
       }
     ],
     "tasks": [
       {
         "ID": "my-python-task",
-        "Scope": [
-          "default",
-          "example-python",
-          "my-spy-app"
-        ]
+        "Scope": ["default", "example-python", "my-spy-app"]
       }
     ],
     "images": [
       {
         "ID": "python:3",
-        "Scope": [
-          "default",
-          "example-python",
-          "my-spy-app",
-          "my-python-task"
-        ]
+        "Scope": ["default", "example-python", "my-spy-app", "my-python-task"]
       }
     ],
     "jobs": [
       {
         "ID": "example-python",
-        "Scope": [
-          "default"
-        ]
+        "Scope": ["default"]
       }
     ],
     "groups": [
       {
         "ID": "my-spy-app",
-        "Scope": [
-          "default",
-          "example-python"
-        ]
+        "Scope": ["default", "example-python"]
       }
     ]
   },
@@ -323,9 +300,7 @@ $ curl \
     "nodes": [
       {
         "ID": "nomad-lab1",
-        "Scope": [
-          "c48cd39f-dfe1-9cc0-9c62-617d199854be"
-        ]
+        "Scope": ["c48cd39f-dfe1-9cc0-9c62-617d199854be"]
       }
     ]
   },
@@ -343,8 +318,8 @@ $ curl \
 
 ```json
 {
-   "Text":"py",
-   "Context":"allocs"
+  "Text": "py",
+  "Context": "allocs"
 }
 ```
 
@@ -368,10 +343,7 @@ $ curl \
     "allocs": [
       {
         "ID": "example-python.my-spy-app[0]",
-        "Scope": [
-          "default",
-          "0fb703d1-ba4d-116f-13aa-27f31f046858"
-        ]
+        "Scope": ["default", "0fb703d1-ba4d-116f-13aa-27f31f046858"]
       }
     ]
   },
@@ -385,7 +357,6 @@ $ curl \
 
 - `Scope[0]` : Namespace
 - `Scope[1]` : Alloc ID
-
 
 ### Sample Payload (for plugins)
 
@@ -436,38 +407,23 @@ $ curl \
     "services": [
       {
         "ID": "python-logger",
-        "Scope": [
-          "default",
-          "example-python",
-          "my-spy-app",
-          "my-python-task"
-        ]
+        "Scope": ["default", "example-python", "my-spy-app", "my-python-task"]
       },
       {
         "ID": "super-spy-service",
-        "Scope": [
-          "default",
-          "example-python",
-          "my-spy-app"
-        ]
+        "Scope": ["default", "example-python", "my-spy-app"]
       }
     ],
     "tasks": [
       {
         "ID": "my-python-task",
-        "Scope": [
-          "default",
-          "example-python",
-          "my-spy-app"
-        ]
+        "Scope": ["default", "example-python", "my-spy-app"]
       }
     ],
     "jobs": [
       {
         "ID": "example-python",
-        "Scope": [
-          "default"
-        ]
+        "Scope": ["default"]
       }
     ],
     "evals": [],
@@ -475,21 +431,13 @@ $ curl \
     "groups": [
       {
         "ID": "my-spy-app",
-        "Scope": [
-          "default",
-          "example-python"
-        ]
+        "Scope": ["default", "example-python"]
       }
     ],
     "images": [
       {
         "ID": "python:3",
-        "Scope": [
-          "default",
-          "example-python",
-          "my-spy-app",
-          "my-python-task"
-        ]
+        "Scope": ["default", "example-python", "my-spy-app", "my-python-task"]
       }
     ],
     "plugins": [
@@ -502,10 +450,7 @@ $ curl \
     "allocs": [
       {
         "ID": "example-python.my-spy-app[0]",
-        "Scope": [
-          "default",
-          "48608246-4c28-0446-f3d1-c67e3bc650ad"
-        ]
+        "Scope": ["default", "48608246-4c28-0446-f3d1-c67e3bc650ad"]
       }
     ]
   },
@@ -542,8 +487,8 @@ deployments, evals, volumes, and quotas (Enterprise).
 
 ```json
 {
-   "Text":"cc",
-   "Context":"all"
+  "Text": "cc",
+  "Context": "all"
 }
 ```
 
@@ -557,6 +502,7 @@ $ curl \
 ```
 
 ### Sample Result
+
 ```json
 {
   "Index": 267,

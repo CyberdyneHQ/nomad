@@ -10,8 +10,8 @@ description: |-
 
 <Placement
   groups={[
-    ['job', 'group', 'service'],
-    ['job', 'group', 'task', 'service'],
+    ["job", "group", "service"],
+    ["job", "group", "task", "service"],
   ]}
 />
 
@@ -815,20 +815,20 @@ advertise and check directly since Nomad isn't managing any port assignments.
   <small>1</small>
 </sup>
 <small>
-  {' '}
-  Script checks are not supported for the QEMU driver since the Nomad client
-  does not have access to the file system of a task for that driver.
+  {" "}
+  Script checks are not supported for the QEMU driver since the Nomad client does
+  not have access to the file system of a task for that driver.
 </small>
 
 [check_restart_stanza]: /docs/job-specification/check_restart
 [consul_grpc]: https://www.consul.io/api/agent/check#grpc
 [consul_passfail]: https://www.consul.io/docs/agent/checks#success-failures-before-passing-critical
-[service-discovery]: /docs/integrations/consul-integration#service-discovery 'Nomad Service Discovery'
-[interpolation]: /docs/runtime/interpolation 'Nomad Runtime Interpolation'
-[network]: /docs/job-specification/network 'Nomad network Job Specification'
-[qemu]: /docs/drivers/qemu 'Nomad QEMU Driver'
-[restart_stanza]: /docs/job-specification/restart 'restart stanza'
-[connect]: /docs/job-specification/connect 'Nomad Consul Connect Integration'
+[service-discovery]: /docs/integrations/consul-integration#service-discovery "Nomad Service Discovery"
+[interpolation]: /docs/runtime/interpolation "Nomad Runtime Interpolation"
+[network]: /docs/job-specification/network "Nomad network Job Specification"
+[qemu]: /docs/drivers/qemu "Nomad QEMU Driver"
+[restart_stanza]: /docs/job-specification/restart "restart stanza"
+[connect]: /docs/job-specification/connect "Nomad Consul Connect Integration"
 [type]: /docs/job-specification/service#type
 [shutdowndelay]: /docs/job-specification/task#shutdown_delay
 [killsignal]: /docs/job-specification/task#kill_signal
