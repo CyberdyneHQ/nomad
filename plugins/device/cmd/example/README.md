@@ -19,6 +19,6 @@ config {
 
 The valid configuration options are:
 
-* `dir` (`string`: `"."`): The directory to scan for files that will represent fake devices.
-* `list_period` (`string`: `"5s"`): The interval to scan the directory for changes.
-* `unhealthy_perm` (`string`: `"-rwxrwxrwx"`): The file mode permission that if set on a detected file will casue the device to be considered unhealthy.
+- `dir` (`string`: `"."`): The directory to scan for files that will represent fake devices.
+- `list_period` (`string`: `"5s"`): The interval to scan the directory for changes.
+- `unhealthy_perm` (`string`: `"-rwxrwxrwx"`): The file mode permission that if set on a detected file will casue the device to be considered unhealthy.

@@ -3,7 +3,11 @@
   align-items: center;
 
   &.is-primary {
-    background: linear-gradient(to right, $nomad-green-darker, $nomad-green-dark);
+    background: linear-gradient(
+      to right,
+      $nomad-green-darker,
+      $nomad-green-dark
+    );
     height: 3.5rem;
     color: $primary-invert;
     padding-left: 20px;

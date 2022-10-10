@@ -21,4 +21,3 @@ Once it is finished, you should be able to SSH in and interact with Nomad:
     ...
 
 To learn more about starting Nomad see the [official site](https://nomadproject.io).
-

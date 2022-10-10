@@ -7,6 +7,9 @@ export default ApplicationSerializer.extend({
     if (relationship === 'policies') {
       return 'Policies';
     }
-    return ApplicationSerializer.prototype.keyForRelationshipIds.apply(this, arguments);
+    return ApplicationSerializer.prototype.keyForRelationshipIds.apply(
+      this,
+      arguments
+    );
   },
 });

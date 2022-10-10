@@ -20,19 +20,15 @@
     "bootstrap_expect": 3,
     "enabled": true,
     "encrypt": "sHck3WL6cxuhuY7Mso9BHA==",
-    "retry_join": [
-      "10.0.0.101",
-      "10.0.0.102",
-      "10.0.0.103"
-    ]
+    "retry_join": ["10.0.0.101", "10.0.0.102", "10.0.0.103"]
   },
   "syslog_facility": "LOCAL0",
   "tls": {
     "ca_file": "/opt/data/nomad/certs/nomad-ca.pem",
     "cert_file": "/opt/data/nomad/certs/server.pem",
-    "http": true,
+    "http": true
   },
   "vault": {
-    "address": "http://host.example.com:8200",
+    "address": "http://host.example.com:8200"
   }
 }

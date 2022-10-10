@@ -87,7 +87,7 @@ This file can be standard Markdown and also supports [YAML frontmatter](https://
 
 ```yaml
 ---
-title: 'My Title'
+title: "My Title"
 description: "A thorough, yet succinct description of the page's contents"
 ---
 ```
@@ -403,9 +403,9 @@ To add a prerelease, an extra `prerelease` property can be added to the componen
   downloads={downloadData}
   community="/resources"
   prerelease={{
-    type: 'release candidate', // the type of prerelease: beta, release candidate, etc.
-    name: 'v1.0.0', // the name displayed in text on the website
-    version: '1.0.0-rc1', // the actual version tag that was pushed to releases.hashicorp.com
+    type: "release candidate", // the type of prerelease: beta, release candidate, etc.
+    name: "v1.0.0", // the name displayed in text on the website
+    version: "1.0.0-rc1", // the actual version tag that was pushed to releases.hashicorp.com
   }}
 />
 ```

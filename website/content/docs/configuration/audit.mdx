@@ -8,7 +8,7 @@ description: >-
 
 # `audit` Stanza
 
-<Placement groups={['audit']} />
+<Placement groups={["audit"]} />
 
 The `audit` stanza configures the Nomad agent to configure Audit logging behavior.
 Audit logging is an Enterprise-only feature.
@@ -99,7 +99,7 @@ audit {
   sent to a sink. Currently only `"json"` format is supported.
 
 - `mode` `(string: "0600")` - Specifies the permissions mode for the audit log
-   files using octal notation.
+  files using octal notation.
 
 - `path` `(string: "[data_dir]/audit/audit.log")` - Specifies the path and file
   name to use for the audit log. By default Nomad will use its configured
