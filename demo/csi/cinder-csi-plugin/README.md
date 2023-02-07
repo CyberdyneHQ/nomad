@@ -24,17 +24,17 @@ The Cinder CSI Node task requires that [`privileged = true`](https://www.nomadpr
 
 ## Container Arguments
 
-* `--endpoint=${CSI_ENDPOINT}`: If you don't use the `CSI_ENDPOINT`
-    environment variable, this option must match the `mount_dir`
-    specified in the `csi_plugin` stanza for the task.
+- `--endpoint=${CSI_ENDPOINT}`: If you don't use the `CSI_ENDPOINT`
+  environment variable, this option must match the `mount_dir`
+  specified in the `csi_plugin` stanza for the task.
 
-* `--cloud-config=/etc/config/cloud.conf`: The location that the
+- `--cloud-config=/etc/config/cloud.conf`: The location that the
   cloud.conf file was mounted inside the container
 
-* `--nodeid=${node.unique.name}`: A unique ID for the node the task is
+- `--nodeid=${node.unique.name}`: A unique ID for the node the task is
   running on. Recommend using `${node.unique.name}`
 
-* `--cluster=${NOMAD_DC}`: The cluster the Controller/Node is a part
+- `--cluster=${NOMAD_DC}`: The cluster the Controller/Node is a part
   of. Recommend using `${NOMAD_DC}`
 
 ## Deployment

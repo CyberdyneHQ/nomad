@@ -1,11 +1,11 @@
 module.exports = {
-  ...require('@hashicorp/platform-cli/config/stylelint.config'),
+  ...require("@hashicorp/platform-cli/config/stylelint.config"),
   rules: {
-    'selector-pseudo-class-no-unknown': [
+    "selector-pseudo-class-no-unknown": [
       true,
       {
-        ignorePseudoClasses: ['first', 'last'],
+        ignorePseudoClasses: ["first", "last"],
       },
     ],
   },
-}
+};
