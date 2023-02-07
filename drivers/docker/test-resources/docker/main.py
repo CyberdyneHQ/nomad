@@ -5,9 +5,10 @@ import time
 def term(signum, stack_Frame):
     exit(1)
 
+
 signal.signal(signal.SIGTERM, term)
 
-print ("Starting")
+print("Starting")
 
 max = 3
 for i in range(max):

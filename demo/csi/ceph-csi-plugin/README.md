@@ -17,18 +17,18 @@ set. This is not needed for the Controller task.
 Refer to the official plugin
 [guide](https://github.com/ceph/ceph-csi/blob/master/docs/deploy-rbd.md).
 
-* `--type=rbd`: driver type `rbd` (or alternately `cephfs`)
+- `--type=rbd`: driver type `rbd` (or alternately `cephfs`)
 
-* `--endpoint=${CSI_ENDPOINT}`: if you don't use the `CSI_ENDPOINT`
-    environment variable, this option must match the `mount_dir`
-    specified in the `csi_plugin` stanza for the task.
+- `--endpoint=${CSI_ENDPOINT}`: if you don't use the `CSI_ENDPOINT`
+  environment variable, this option must match the `mount_dir`
+  specified in the `csi_plugin` stanza for the task.
 
-* `--nodeid=${node.unique.id}`: a unique ID for the node the task is running
+- `--nodeid=${node.unique.id}`: a unique ID for the node the task is running
   on.
 
-* `--instanceid=${NOMAD_ALLOC_ID}`: a unique ID distinguishing this instance
-    of Ceph CSI among other instances, when sharing Ceph clusters across CSI
-    instances for provisioning. Used for topology-aware deployments.
+- `--instanceid=${NOMAD_ALLOC_ID}`: a unique ID distinguishing this instance
+  of Ceph CSI among other instances, when sharing Ceph clusters across CSI
+  instances for provisioning. Used for topology-aware deployments.
 
 ### Run the Plugins
 
@@ -86,7 +86,6 @@ based on [Ceph-CSI ID
 Format](https://github.com/ceph/ceph-csi/blob/71ddf51544be498eee03734573b765eb04480bb9/internal/util/volid.go#L27)
 (see
 [examples](https://github.com/ceph/ceph-csi/blob/71ddf51544be498eee03734573b765eb04480bb9/internal/util/volid_test.go#L33)).
-
 
 ## Running Ceph in Vagrant
 
