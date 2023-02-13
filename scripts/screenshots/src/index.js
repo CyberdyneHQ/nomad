@@ -7,7 +7,7 @@ const {
   clickJob,
   clickTab,
   clickMainMenu,
-  clickX
+  clickX,
 } = require("./utils");
 
 const HOST = process.env.EMBER_HOST || "http://localhost:4200";
@@ -27,7 +27,7 @@ const ANSI_YELLOW = "\x1b[33m%s\x1b[0m";
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
       "--remote-debugging-port=9222",
-    ]
+    ],
   });
   const page = await browser.newPage();
 
@@ -121,7 +121,7 @@ const ANSI_YELLOW = "\x1b[33m%s\x1b[0m";
   await clickMainMenu(page, "Jobs");
   await clickJob(page, "service");
 
-  const allocCount = await page.$$eval(".allocation-row", s => s.length);
+  const allocCount = await page.$$eval(".allocation-row", (s) => s.length);
   for (let i = 1; i <= allocCount; i++) {
     await click(page, `.allocation-row:nth-of-type(${i}) a.is-primary`);
     await capture(page, `allocation-${i}`);
@@ -139,7 +139,7 @@ const ANSI_YELLOW = "\x1b[33m%s\x1b[0m";
   await clickMainMenu(page, "Clients");
   await capture(page, "clients-list");
 
-  const clientCount = await page.$$eval(".client-node-row", s => s.length);
+  const clientCount = await page.$$eval(".client-node-row", (s) => s.length);
   for (let i = 1; i <= clientCount; i++) {
     await click(page, `.client-node-row:nth-of-type(${i})`);
     await capture(page, `client-detail-${i}`);

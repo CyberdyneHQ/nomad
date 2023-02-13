@@ -1,6 +1,6 @@
 ---
 layout: docs
-page_title: 'Drivers: podman'
+page_title: "Drivers: podman"
 description: >-
   The Podman task driver uses podman (https://podman.io/) for containerizing
   tasks.
@@ -209,21 +209,21 @@ The `podman` driver implements the following [capabilities](/docs/internals/plug
 - `logging` - (Optional) Configure logging. Also refer to the plugin option
   [`disable_log_collection`].
 
-    - `driver = "nomad"` - (Default) Podman redirects its combined
+  - `driver = "nomad"` - (Default) Podman redirects its combined
     `stdout/stderr` logstream directly to a Nomad `fifo`. Benefits of this
     mode are: zero overhead, don't have to worry about log rotation at system
     or Podman level. Downside: you cannot easily ship the logstream to a log
     aggregator plus `stdout/stderr` is multiplexed into a single stream.
 
-    ```hcl
-    config {
-      logging = {
-        driver = "nomad"
-      }
+  ```hcl
+  config {
+    logging = {
+      driver = "nomad"
     }
-    ```
+  }
+  ```
 
-    - `driver = "journald"` - The container log is forwarded from Podman to the
+  - `driver = "journald"` - The container log is forwarded from Podman to the
     `journald` on your host. Next, it's pulled by the Podman API back from the
     journal into the Nomad `fifo` (controllable by [`disable_log_collection`]).
     Benefits: all containers can log into the host journal, you can ship a
@@ -233,18 +233,18 @@ The `podman` driver implements the following [capabilities](/docs/internals/plug
     You should configure some rotation policy for your Journal. Ensure you're
     running Podman 3.1.0 or higher because of bugs in older versions.
 
-    ```hcl
-    config {
-      logging = {
-        driver = "journald"
-        options = [
-          {
-            "tag" = "redis"
-          }
-        ]
-      }
+  ```hcl
+  config {
+    logging = {
+      driver = "journald"
+      options = [
+        {
+          "tag" = "redis"
+        }
+      ]
     }
-    ```
+  }
+  ```
 
 - `memory_reservation` - (Optional) Memory soft limit (units = `b` (bytes), `k`
   (kilobytes), `m` (megabytes), or `g` (gigabytes)).
@@ -289,17 +289,17 @@ The `podman` driver implements the following [capabilities](/docs/internals/plug
   `slirp4netns` for rootless containers.
 
   - `bridge` - (Default for rootful) Create a network stack on the default
-  Podman bridge.
+    Podman bridge.
   - `container:id` - Reuse another container's network stack.
   - `host` - Use the Podman host network stack. Note: the host mode gives the
-  container full access to local system services such as D-bus and is therefore
-  considered insecure.
+    container full access to local system services such as D-bus and is therefore
+    considered insecure.
   - `none` - No networking.
   - `slirp4netns` - (Default for rootless) Use `slirp4netns` to create a user
-  network stack. Podman currently does not support this option for rootful
-  containers ([issue][slirp-issue]).
+    network stack. Podman currently does not support this option for rootful
+    containers ([issue][slirp-issue]).
   - `task:name-of-other-task`: Join the network of another task in the same
-  allocation.
+    allocation.
 
   ```hcl
   config {

@@ -30,6 +30,7 @@ $ export job_dir="$(pwd)/kadalu"
 ## Demo
 
 ### Pre-requisites
+
 - Configure varisables mentioned in `cluster.vars` to reflect your external
   Gluster details.
 - For convenience the necessary variables are set from the CLI when running the
@@ -227,6 +228,7 @@ file1   file10  file2 file3   file4   file5   file6   file7   file8   file9
 ```
 
 #### Cleanup
+
 ```console
 # Stop sample app, delete the volume and stop the CSI plugin components
 $ nomad stop sample-pv-check

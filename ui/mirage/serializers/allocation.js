@@ -23,9 +23,9 @@ function serializeAllocation(allocation) {
     : {};
   allocation.AllocatedResources = {
     Shared: { Ports, Networks },
-    Tasks: allocation.TaskResources.map(({ Name, Resources }) => ({ Name, ...Resources })).reduce(
-      arrToObj('Name'),
-      {}
-    ),
+    Tasks: allocation.TaskResources.map(({ Name, Resources }) => ({
+      Name,
+      ...Resources,
+    })).reduce(arrToObj('Name'), {}),
   };
 }
