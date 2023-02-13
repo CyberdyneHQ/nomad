@@ -5,20 +5,20 @@ each release. Generally, each Y release of Nomad (where 0.9.5 means X=0, Y=9,
 Z=5) will update to the latest version of the Go toolchain available at the
 time.
 
-Nomad Z releases update to the latest Go Z release but do *not* change Go's Y
+Nomad Z releases update to the latest Go Z release but do _not_ change Go's Y
 version.
 
 ## Version Table
 
 | Nomad Version | Go Version |
-|:-------------:|:----------:|
-| 1.2           | 1.17       |
-| 1.1           | 1.16       |
-| 1.0           | 1.15       |
-| 0.12          | 1.14       |
-| 0.11          | 1.14       |
-| 0.10          | 1.12       |
-| 0.9           | 1.11       |
+| :-----------: | :--------: |
+|      1.2      |    1.17    |
+|      1.1      |    1.16    |
+|      1.0      |    1.15    |
+|     0.12      |    1.14    |
+|     0.11      |    1.14    |
+|     0.10      |    1.12    |
+|      0.9      |    1.11    |
 
 ## Code
 

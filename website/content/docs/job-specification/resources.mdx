@@ -8,7 +8,7 @@ description: |-
 
 # `resources` Stanza
 
-<Placement groups={['job', 'group', 'task', 'resources']} />
+<Placement groups={["job", "group", "task", "resources"]} />
 
 The `resources` stanza describes the requirements a task needs to execute.
 Resource requirements include memory, CPU, and more.
@@ -86,6 +86,7 @@ resources {
   }
 }
 ```
+
 ## Memory Oversubscription
 
 Setting task memory limits requires balancing the risk of interrupting tasks
@@ -97,10 +98,10 @@ To help maximize cluster memory utilization while allowing a safety margin for
 unexpected load spikes, Nomad 1.1. lets job authors set two separate memory
 limits:
 
-* `memory`: the reserve limit to represent the task’s typical memory usage —
+- `memory`: the reserve limit to represent the task’s typical memory usage —
   this number is used by the Nomad scheduler to reserve and place the task
 
-* `memory_max`: the maximum memory the task may use, if the client has excess
+- `memory_max`: the maximum memory the task may use, if the client has excess
   available memory, and may be terminated if it exceeds
 
 If a client's memory becomes contended or low, the operating system will
@@ -110,7 +111,7 @@ mechanism for memory pressure is specific to the task driver, operating system,
 and application runtime.
 
 The new max limit attribute is currently supported by the official `docker`,
-`exec`, and `java` task drivers.  Consult the documentation of
+`exec`, and `java` task drivers. Consult the documentation of
 community-supported task drivers for their memory oversubscription support.
 
 Memory oversubscription is opt-in. Nomad operators can enable [Memory Oversubscription in the scheduler
@@ -121,16 +122,16 @@ oversubscription.
 To avoid degrading the cluster experience, we recommend examining and monitoring
 resource utilization and considering the following suggestions:
 
-* Set `oom_score_adj` for Linux host services that aren't managed by Nomad, e.g.
+- Set `oom_score_adj` for Linux host services that aren't managed by Nomad, e.g.
   Docker, logging services, and the Nomad agent itself. For Systemd services, you can use the [`OOMScoreAdj` field](https://github.com/hashicorp/nomad/blob/v1.0.0/dist/systemd/nomad.service#L25).
 
-* Monitor hosts for memory utilization and set alerts on Out-Of-Memory errors
+- Monitor hosts for memory utilization and set alerts on Out-Of-Memory errors
 
-* Set the [client `reserved`](/docs/configuration/client#reserved) with enough
+- Set the [client `reserved`](/docs/configuration/client#reserved) with enough
   memory for host services that aren't managed by Nomad as well as a buffer
   for the memory excess. For example, if the client reserved memory is 1GB,
   the allocations on the host may exceed their soft memory limit by almost
   1GB in aggregate before the memory becomes contended and allocations get
   killed.
 
-[device]: /docs/job-specification/device 'Nomad device Job Specification'
+[device]: /docs/job-specification/device "Nomad device Job Specification"
