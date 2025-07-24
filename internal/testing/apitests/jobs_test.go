@@ -72,7 +72,7 @@ func TestJobs_Summary_WithACL(t *testing.T) {
 
 	// Query the job summary with an invalid token should fail
 	c.SetSecretID(invalidToken.SecretID)
-	result, _, err := jobs.Summary(*job.ID, nil)
+	_, _, err = jobs.Summary(*job.ID, nil)
 	assert.NotNil(err)
 
 	// Query the job summary with a valid token should succeed

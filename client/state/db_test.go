@@ -236,7 +236,6 @@ func TestStateDB_Batch(t *testing.T) {
 			writeTime := time.Now().Sub(startTime)
 			expectedNumTransactions := ceilDiv(numAllocs, batchSize) + ceilDiv(int(writeTime), int(batchDelay))
 			require.LessOrEqual(numTransactions, expectedNumTransactions)
-			prevTxID = getTxID()
 		}
 
 		// Check all allocs were deleted.
