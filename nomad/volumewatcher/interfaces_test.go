@@ -71,7 +71,7 @@ type MockRPCServer struct {
 }
 
 func (srv *MockRPCServer) Unpublish(args *structs.CSIVolumeUnpublishRequest, reply *structs.CSIVolumeUnpublishResponse) error {
-	reply = srv.nextCSIUnpublishResponse
+	*reply = *srv.nextCSIUnpublishResponse
 	srv.countCSIUnpublish++
 	return srv.nextCSIUnpublishError
 }

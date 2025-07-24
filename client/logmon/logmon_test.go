@@ -144,8 +144,6 @@ func TestLogmon_Start_restart_flusheslogs(t *testing.T) {
 
 	stdout, err = fifo.OpenWriter(stdoutFifoPath)
 	require.NoError(err)
-	stderr, err = fifo.OpenWriter(stderrFifoPath)
-	require.NoError(err)
 
 	_, err = stdout.Write([]byte("te"))
 	require.NoError(err)
@@ -164,8 +162,6 @@ func TestLogmon_Start_restart_flusheslogs(t *testing.T) {
 	require.NoError(lm.Start(cfg))
 
 	stdout, err = fifo.OpenWriter(stdoutFifoPath)
-	require.NoError(err)
-	stderr, err = fifo.OpenWriter(stderrFifoPath)
 	require.NoError(err)
 
 	_, err = stdout.Write([]byte("st\n"))
